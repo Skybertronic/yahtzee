@@ -2,7 +2,7 @@
 This is only the source-code of the game.
 
 Main files:
-Server -> Setup
+Server -> Setup,
 Client -> Client
 
 Required:
