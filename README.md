@@ -2,7 +2,7 @@
 
 To start the game, you have to open the JAR-File via the command prompt:
 
-cd path\To\The\File
+cd path\to\the\file
 java -jar filename.jar
 
 Required:
