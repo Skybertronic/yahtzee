@@ -1,6 +1,6 @@
 # yahtzee
 
-To start the game, you have to open the JAR-File via the cmd
+To start the game, you have to open the JAR-File via the cmd:
 java -jar filename.jar
 
 Required:
