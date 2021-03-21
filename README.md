@@ -17,3 +17,7 @@ Additional information
 - One person has to run the server and everyone else a client.
 - If you run the server, it is still possible to run a client.
 - If you want to play alone, you still have to run the server program.
+
+Main-Class
+- Server -> Setup
+- Client -> Client
