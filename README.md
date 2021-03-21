@@ -9,11 +9,11 @@ cd path\to\the\file
 java -jar filename.jar
 
 Required:
-openjdk 15 or higher
+- openjdk 15 or higher
 
 Main-Class:
-Server -> Setup,
-Client -> Client
+- Server -> Setup,
+- Client -> Client
 
 - This program should support local multiplayer and single player.
 - There are two files: one is the server and the other one the client.
