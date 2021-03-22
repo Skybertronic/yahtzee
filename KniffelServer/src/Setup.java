@@ -17,7 +17,7 @@ public class Setup {
     private static int latestLocalPort = 1000;
 
     public Setup() {
-        System.out.println("Server v2.0.1 by Skybertronic");
+        System.out.println("Server v2.0.2 by Skybertronic");
 
         USERS = new ArrayList<>();
 
@@ -107,7 +107,7 @@ public class Setup {
                     printWriter.flush();
                     user.setInGame(true);
 
-                    return new Player(user, loginSocket);
+                    return new Player(user, loginSocket, bufferedReader, printWriter);
                 }
 
                                 // wrong password
@@ -126,7 +126,7 @@ public class Setup {
         printWriter.println("!registered");
         printWriter.flush();
 
-        return new Player(user, loginSocket);
+        return new Player(user, loginSocket, bufferedReader, printWriter);
     }
 
                                 // returns the command to assign a role

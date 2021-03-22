@@ -36,18 +36,14 @@ class Player {
     private BufferedReader bufferedReader;
     private PrintWriter printWriter;
 
-    public Player(User user, java.net.Socket socket) {
+    public Player(User user, java.net.Socket socket, BufferedReader bufferedReader, PrintWriter printWriter) {
         this.user = user;
         this.socket = socket;
         this.points = new Points();
         this.dices = new Dices();
 
-        try {
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+        this.bufferedReader = bufferedReader;
+        this.printWriter = printWriter;
     }
 
                                     // reads stuff

@@ -6,7 +6,7 @@ public class Client {
     private String name;
 
     public Client() {
-        System.out.println("Client v2.0.1 by Skybertronic");
+        System.out.println("Client v2.0.2 by Skybertronic");
 
         printRules();
 
@@ -17,7 +17,7 @@ public class Client {
 
                                 // choose port
         scanner = new Scanner(System.in);
-        System.out.print("Port: ");
+        System.out.print("Lobby: ");
         int port = scanner.nextInt();
         System.out.println();
 
