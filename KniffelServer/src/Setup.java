@@ -37,10 +37,7 @@ public class Setup {
 
                                 // creates the server socket for the different games
     public void createNewSocket() throws IOException {
-
         latestServerSocket = new java.net.ServerSocket(++latestLocalPort);
-
-        System.out.println("Lobby " + latestLocalPort + " is open to join!");
     }
 
                                 // basically the lobby
@@ -69,8 +66,6 @@ public class Setup {
                                 // host decides how many people are able to join the lobby
             players.get(0).write(player.getUser().getName() + " joined the game, add again?: ");
         } while (players.get(0).readLine().equalsIgnoreCase("yes"));
-
-        System.out.println("Lobby " + latestLocalPort + " is closed!");
 
         return players.toArray(Player[]::new);
     }
@@ -118,7 +113,7 @@ public class Setup {
             }
         }
 
-                                // player didn't exist
+                                // user didn't exist
         User user = new User(name, password);
         user.setInGame(true);
         USERS.add(user);
@@ -140,18 +135,15 @@ public class Setup {
         }
     }
 
+                                // last settings, before the game starts
     public void createGame(Player[] players) throws IOException {
         Game game;
         Thread gameThread;
         Chart chart = new Chart(players);
 
                                 // host chooses game-type
-        String type = players[0].readLine();
+        switch (players[0].readLine()) {
 
-        System.out.println("Game " + latestLocalPort + " starts!");
-
-        switch (type) {
-                                // players roll dices one at a time
             case "linear" -> {
 
                 game = new Game(latestServerSocket, chart, players);
@@ -189,71 +181,20 @@ public class Setup {
         Setup setup = new Setup();
 
         try {
+
                                 // creates infinite lobbies and transforms them into games games
             while (true) {
 
+                System.out.println("Lobby " + latestLocalPort + " is open to join!");
                 setup.createNewSocket();
+                System.out.println("Lobby " + latestLocalPort + " is closed!");
+
                 setup.createGame(setup.connectToLobby());
+                System.out.println("Game " + latestLocalPort + " starts!");
             }
         } catch (IOException e) {
 
             e.printStackTrace();
         }
-    }
-}
-
-                                // administrates games
-class Administration implements Runnable {
-    private final ArrayList<Thread> THREADS;
-    private final List<Game> GAMES;
-
-    public Administration() {
-        THREADS = new ArrayList<>();
-        GAMES = Collections.synchronizedList(new ArrayList<>());
-    }
-
-                                // closes the socket of games, where running equals false
-    public Game searchForFinishedGames() throws IOException {
-        while (true) {
-            for (Game game: GAMES) {
-                if (!game.isRunning()) {
-                    System.out.println("server.Game " + game.getSERVERSOCKET() + " finished!");
-                    for (Player player: game.getPLAYER()) {
-                        player.write("!endGame");
-
-                        player.getSocket().close();
-                        player.getUser().setInGame(false);
-                    }
-
-                    return game;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void run() {
-        Game finishedGame;
-
-        try {
-            while (true) {
-                finishedGame = searchForFinishedGames();
-
-                finishedGame.getSERVERSOCKET().close();
-                GAMES.remove(finishedGame);
-                THREADS.remove(finishedGame);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-                                // get-/set- methods
-    public List<Game> getGAMES() {
-        return GAMES;
-    }
-
-    public List<Thread> getTHREADS() {
-        return THREADS;
     }
 }

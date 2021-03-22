@@ -33,8 +33,8 @@ class Player {
     private final Dices dices;
 
     private final java.net.Socket socket;
-    private BufferedReader bufferedReader;
-    private PrintWriter printWriter;
+    private final BufferedReader bufferedReader;
+    private final PrintWriter printWriter;
 
     public Player(User user, java.net.Socket socket, BufferedReader bufferedReader, PrintWriter printWriter) {
         this.user = user;
