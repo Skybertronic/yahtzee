@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-// administrates games
+                                // administrates games
 public class Administration implements Runnable {
     private final ArrayList<Thread> THREADS;
     private final List<Game> GAMES;
@@ -13,7 +13,7 @@ public class Administration implements Runnable {
         GAMES = Collections.synchronizedList(new ArrayList<>());
     }
 
-    // closes the socket of games, where running equals false
+                                // closes the socket of games, where running equals false
     public Game searchForFinishedGames() throws IOException {
         while (true) {
             for (Game game: GAMES) {
