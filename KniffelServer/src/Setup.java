@@ -5,24 +5,22 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
                                 // creates games
 public class Setup {
     private final Administration ADMINISTRATION;
     private final List<User> USERS;
-    private static java.net.ServerSocket latestServerSocket;
 
+    private static java.net.ServerSocket latestServerSocket;
     private static int latestLocalPort = 1000;
 
     public Setup() {
-        System.out.println("Server v2.0.2 by Skybertronic");
+        System.out.println("Server v2.1.0 by Skybertronic");
 
         USERS = new ArrayList<>();
 
         ADMINISTRATION = new Administration();
-
         Thread thread = new Thread(ADMINISTRATION);
         thread.start();
 
@@ -38,6 +36,7 @@ public class Setup {
                                 // creates the server socket for the different games
     public void createNewSocket() throws IOException {
         latestServerSocket = new java.net.ServerSocket(++latestLocalPort);
+        System.out.println("Lobby " + latestLocalPort + " is open to join!");
     }
 
                                 // basically the lobby
@@ -64,8 +63,10 @@ public class Setup {
             players.add(player);
 
                                 // host decides how many people are able to join the lobby
-            players.get(0).write(player.getUser().getName() + " joined the game, add again?: ");
+            players.get(0).write(player.getUSER().getName() + " joined the game, add again?: ");
         } while (players.get(0).readLine().equalsIgnoreCase("yes"));
+
+        System.out.println("Lobby " + latestLocalPort + " is closed!");
 
         return players.toArray(Player[]::new);
     }
@@ -171,6 +172,8 @@ public class Setup {
             }
         }
 
+        System.out.println("Game " + latestLocalPort + " starts!");
+
                                 // sends the command to start the game to every player part of the lobby
         for (Player player: players) {
             player.write("!startGame");
@@ -185,12 +188,8 @@ public class Setup {
                                 // creates infinite lobbies and transforms them into games games
             while (true) {
 
-                System.out.println("Lobby " + latestLocalPort + " is open to join!");
                 setup.createNewSocket();
-                System.out.println("Lobby " + latestLocalPort + " is closed!");
-
                 setup.createGame(setup.connectToLobby());
-                System.out.println("Game " + latestLocalPort + " starts!");
             }
         } catch (IOException e) {
 

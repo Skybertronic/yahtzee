@@ -1,5 +1,6 @@
 import java.io.*;
 
+                                // saves name and password
 public class User {
     private final String name, password;
     private boolean inGame;
@@ -27,8 +28,9 @@ public class User {
     }
 }
 
+                                // saves all the data needed to play a game and handles the connection
 class Player {
-    private final User user;
+    private final User USER;
     private final Points points;
     private final Dices dices;
 
@@ -37,7 +39,7 @@ class Player {
     private final PrintWriter printWriter;
 
     public Player(User user, java.net.Socket socket, BufferedReader bufferedReader, PrintWriter printWriter) {
-        this.user = user;
+        this.USER = user;
         this.socket = socket;
         this.points = new Points();
         this.dices = new Dices();
@@ -64,8 +66,8 @@ class Player {
     }
 
                                     // get-/ set- methods
-    public User getUser() {
-        return user;
+    public User getUSER() {
+        return USER;
     }
 
     public java.net.Socket getSocket() {

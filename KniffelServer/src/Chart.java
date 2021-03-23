@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
 
+                                // creates / sends the chart
 public class Chart {
     private final String[] DESIGNATIONS = {"ACES", "TWOS", "THREES", "FOURS", "FIVES", "SIXES", "UPPER SUM", "BONUS", "WITH BONUS", "THREE OF A KIND", "FOUR OF A KIND", "FULL HOUSE", "SMALL STRAIGHT", "BIG STRAIGHT", "YAHTZEE", "CHANCE", "TOTAL LOWER POINTS", "TOTAL UPPER POINTS", "TOTAL"};
     private final Player[] players;
@@ -12,7 +13,7 @@ public class Chart {
         ArrayList<String> playersNames = new ArrayList<>();
 
         for (Player player: players) {
-            playersNames.add(player.getUser().getName());
+            playersNames.add(player.getUSER().getName());
         }
         this.LONGESTNAME =  longestString(playersNames.toArray(String[]::new));
     }
@@ -52,7 +53,7 @@ public class Chart {
                                 // appends all the names to the to be send row
         row.append(String.format("%-" + (LONGESTDESIGNATION + space) + "s", "NAMES:"));
         for (Player player : players) {
-            row.append(String.format("%-" + (LONGESTNAME + space) + "s", player.getUser().getName()));
+            row.append(String.format("%-" + (LONGESTNAME + space) + "s", player.getUSER().getName()));
         }
 
                                 // sends row and deletes the cache
@@ -98,10 +99,9 @@ public class Chart {
         row.append(String.format("%-3s", description[0]));
         row.append(String.format("%-" + LONGESTDESIGNATION + "s", description[1]));
         row.append(String.format("%-"+ LONGESTDESIGNATION + "s", description[2]));
-        row.append(String.format("%s", description[3]));
+        row.append(String.format("%s%n", description[3]));
 
         player.write(row.toString());
-        player.write("\n");
         row.delete(0, row.length());
 
         if (section.toLowerCase().startsWith("u")) {

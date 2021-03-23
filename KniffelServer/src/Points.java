@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 
+                                // calculates the score and checks the conditions
 public class Points {
     private final int[] FIXEDPOINTS = {35, 25, 30, 40, 60};
 

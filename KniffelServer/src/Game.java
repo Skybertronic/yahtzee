@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
 
+                                // administrates everything happening in game
 public class Game implements Runnable {
     private boolean running;
 
@@ -45,31 +46,51 @@ public class Game implements Runnable {
 
                                 //  administrates the process of changing the dicing
     public void changeDices(Player player) throws IOException {
-        String changes;
+        String message;
+        boolean wrongInput;
+        ArrayList<Integer> changes = new ArrayList<>();
 
         randomizeDices(player);
 
         for (int i=0; i<3; i++) {
                                 // sends the value of the dices to the active player
-            player.write("!startPrintLn");
-            player.write(printDices(player));
-            player.write("!endPrintLn");
+            do {
+                wrongInput = false;
+                changes.clear();
 
-                                // manages the input
-            player.write("!startPrint");
-            player.write("Which dices do you want to change?: ");
-            player.write("!endPrint");
+                player.write("!startPrintLn");
+                player.write(printDices(player));
+                player.write("!endPrintLn");
 
-            player.write("!getInput");
-            changes = player.readLine();
+                // manages the input
+                player.write("!startPrint");
+                player.write("Which dices do you want to change?: ");
+                player.write("!endPrint");
 
-                                // player doesn't want to change any dices
-            if (changes.startsWith(",")) break;
+                player.write("!getInput");
+                message = player.readLine();
+
+                // player doesn't want to change any dices
+                if (message.startsWith(",")) break;
+
+                try {
+                    for (String value: message.split(",")) {
+                        changes.add(Integer.parseInt(value));
+                    }
+                } catch (NumberFormatException numberFormatException) {
+                    wrongInput = true;
+
+                    player.write("!startPrintLn");
+                    player.write("Wrong input!");
+                    player.write("!endPrintLn");
+                }
+            } while (wrongInput);
 
                                 // extracts the different values
-            for (String changing: changes.split(",")) {
-                player.getDices().randomizeValue(Integer.parseInt(changing));
+            for (int change: changes) {
+                player.getDices().randomizeValue(change);
             }
+            
         }
 
                                 // sends the finals values to the player
@@ -141,11 +162,11 @@ public class Game implements Runnable {
         try {
             while (endGame()) {
                 for (Player player: PLAYER) {
-                    player.write("!startTurn" + player.getUser().getName());
+                    player.write("!startTurn" + player.getUSER().getName());
                     sendChartToEveryone();
                     changeDices(player);
                     setPoints(player);
-                    player.write("!endTurn" + player.getUser().getName());
+                    player.write("!endTurn" + player.getUSER().getName());
                 }
             }
 

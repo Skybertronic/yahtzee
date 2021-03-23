@@ -23,7 +23,7 @@ public class Administration implements Runnable {
                         player.write("!endGame");
 
                         player.getSocket().close();
-                        player.getUser().setInGame(false);
+                        player.getUSER().setInGame(false);
                     }
 
                     return game;

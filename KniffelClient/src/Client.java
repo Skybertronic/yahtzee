@@ -6,7 +6,7 @@ public class Client {
     private String name;
 
     public Client() {
-        System.out.println("Client v2.0.2 by Skybertronic");
+        System.out.println("Client v2.1.0 by Skybertronic");
 
         printRules();
 
@@ -36,10 +36,10 @@ public class Client {
         System.out.println("\nRules/Recommendations:");
         System.out.println("1. The game follows the standard rules of Yahtzee");
         System.out.println("2. Please don´t disconnect, until you have finished your game");
-        System.out.println("3. Don't use spaces, it could break the code");
-        System.out.println("4. The dice positions are structured like an array 0,1,2,3,4");
-        System.out.println("5. No matter if want to change dices or not, you have to confirm the dice-input with an \",\"");
-        System.out.println("6. If you want to navigate between brackets, you have to input 0");
+        System.out.println("3. Don't use spaces, it will break the code");
+        System.out.println("4. The dice positions are structured like 0,1,2,3,4");
+        System.out.println("5. If you don't want to change dices start your input with an \",\"");
+        System.out.println("6. If you want to navigate between brackets, you have to input an non existing ID");
         System.out.println("7. I don´t know how many players the game can support, it depends on the length of the names :/");
         System.out.println("8. This is the first multiplayer version I created, so please try not to make inputs at the same time.. ty :D\n");
     }
