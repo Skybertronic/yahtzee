@@ -6,27 +6,34 @@ public class Client {
     private String name;
 
     public Client() {
-        System.out.println("Client v2.1.0 by Skybertronic");
+        boolean wrongInput;
 
+        System.out.println("Client v2.1.0 by Skybertronic");
         printRules();
 
+        do {
+            wrongInput = false;
+
                                 // choose ip
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("IP: ");
-        String ip = scanner.next();
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("IP: ");
+            String ip = scanner.next();
 
                                 // choose port
-        scanner = new Scanner(System.in);
-        System.out.print("Lobby: ");
-        int port = scanner.nextInt();
-        System.out.println();
+            scanner = new Scanner(System.in);
+            System.out.print("Lobby: ");
+            int port = scanner.nextInt();
+            System.out.println();
 
                                 // creates socket based on ip and port
-        try {
-            socket = new java.net.Socket(ip, port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                socket = new java.net.Socket(ip, port);
+            } catch (IOException e) {
+                wrongInput = true;
+                System.out.println("Not able to connect!\nPlease use the IP written in the first line of the server-log or localhost\n");
+            }
+        } while (wrongInput);
+
     }
 
 
