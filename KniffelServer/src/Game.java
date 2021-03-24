@@ -71,7 +71,10 @@ public class Game implements Runnable {
                 message = player.readLine();
 
                 // player doesn't want to change any dices
-                if (message.startsWith(",")) break;
+                if (message.startsWith(",")) {
+                    i=3;
+                    break;
+                }
 
                 try {
                     for (String value: message.split(",")) {
