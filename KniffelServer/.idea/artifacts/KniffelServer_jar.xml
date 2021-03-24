@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KniffelServer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/KniffelServer_jar</output-path>
+    <root id="archive" name="KniffelServer.jar">
+      <element id="module-output" name="KniffelServer" />
+    </root>
+  </artifact>
+</component>
