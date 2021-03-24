@@ -7,11 +7,9 @@
 * One person has to run the server
 * Every player has to run a client
 
-### How to execute the files
+### Setup
 1. Open up the command prompt
-```sh
-search for cmd in your windows searchbar
-``` 
+
 2. Change the directory to the file-path:
 ```sh
 cd path\to\the\file
