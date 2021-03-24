@@ -4,6 +4,8 @@
 - openjdk 15 or higher
 
 ## How to play
+- One person has to run the server
+- Every player has to run a client
 
 1. Change the directory to the file-path:
 ```sh
