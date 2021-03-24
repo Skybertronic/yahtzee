@@ -1,29 +1,42 @@
 # Yahtzee for Java
 
-## Required:
-- openjdk 15 or higher
-
 ## How to play
-- One person has to run the server
-- Every player has to run a client
 
-1. Change the directory to the file-path:
+### Requirements
+- - -
+* Everyone has to have openjdk 15 installed
+* One person has to run the server
+* Every player has to run a client
+
+### How to execute the files
+- - -
+1. Open up the command prompt
+```sh
+search for cmd in your windows searchbar
+``` 
+2. Change the directory to the file-path:
 ```sh
 cd path\to\the\file
 ```
 
-2. Execute the file:
+3. Execute the file:
 ```sh
 java -jar filename.jar
 ```
 
+## Possible errors
+- - -
+* A client or a server isn't found
+  * Check if the network you're in is set to be a private network
+
 ## Additional information
-- This program should support local multiplayer and single player.
-- There are two files: one is the server and the other one the client.
-- One person has to run the server and everyone else a client.
-- If you run the server, it is still possible to run a client.
-- If you want to play alone, you still have to run the server program.
+- - -
+* This program supports local multiplayer and single player
+* There are two files: the server and the client
+* If you run the server, it is still possible to run a client
+* If you want to play alone, you still have to run the server program
 
 ## Main-Class
-- Server -> Setup
-- Client -> Client
+- - -
+* Server -> Setup
+* Client -> Client
