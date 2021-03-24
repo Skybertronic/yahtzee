@@ -8,7 +8,7 @@
 * Every player has to run a client
 
 ### Setup
-1. Open up the command prompt
+1. Open the command prompt
 
 2. Change the directory to the file-path:
 ```sh
