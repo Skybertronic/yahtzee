@@ -3,7 +3,7 @@
 ## Required:
 - openjdk 15 or higher
 
-## To start the game, you have to open the JAR-File via the command prompt:
+## How to play
 
 1. Change the directory to the file-path:
 ```sh
