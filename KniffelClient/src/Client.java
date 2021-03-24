@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client {
@@ -7,6 +8,8 @@ public class Client {
 
     public Client() {
         boolean wrongInput;
+        int port = 0;
+        Scanner scanner;
 
         System.out.println("Client v2.1.0 by Skybertronic");
         printRules();
@@ -15,22 +18,31 @@ public class Client {
             wrongInput = false;
 
                                 // choose ip
-            Scanner scanner = new Scanner(System.in);
+            scanner = new Scanner(System.in);
             System.out.print("IP: ");
             String ip = scanner.next();
 
-                                // choose port
-            scanner = new Scanner(System.in);
-            System.out.print("Lobby: ");
-            int port = scanner.nextInt();
-            System.out.println();
-
-                                // creates socket based on ip and port
+                                // choose port/lobby
             try {
-                socket = new java.net.Socket(ip, port);
-            } catch (IOException e) {
+                scanner = new Scanner(System.in);
+                System.out.print("Lobby: ");
+                port = scanner.nextInt();
+                System.out.println();
+
+            } catch (InputMismatchException inputMismatchException) {
                 wrongInput = true;
-                System.out.println("Not able to connect!\nPlease use the IP written in the first line of the server-log or localhost\n");
+                System.out.printf("%n%s%n%n", "Lobby/Port is always a number!");
+            }
+
+                    // creates socket based on ip and port
+            if (!wrongInput) {
+                try {
+                    socket = new java.net.Socket(ip, port);
+                } catch (IOException e) {
+                    wrongInput = true;
+                    System.out.println("Not able to connect!\nPlease use the IP written in the first line of the server-log or localhost\n");
+                }
+
             }
         } while (wrongInput);
 
