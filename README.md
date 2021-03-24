@@ -6,10 +6,14 @@
 ## To start the game, you have to open the JAR-File via the command prompt:
 
 1. Change the directory to the file-path:
+```sh
 cd path\to\the\file
+```
 
 2. Execute the file:
+```sh
 java -jar filename.jar
+```
 
 ## Additional information
 - This program should support local multiplayer and single player.
