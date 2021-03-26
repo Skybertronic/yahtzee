@@ -78,18 +78,28 @@ public class Client {
 
                                 // login process | loops until name and password are valid
     public boolean login() throws IOException {
-        String receive;
-        Scanner scanner1 = new Scanner(System.in), scanner2 = new Scanner(System.in);
+        String receive = "";
+        Scanner scanner = new Scanner(System.in);
+        boolean wrongInput = false;
 
          do {
                                 // nickname
-             System.out.print(readLine());
-             name = scanner1.next();
-             write(name);
+             do {
+                 if (wrongInput) {
+                     System.out.println("The maximal length is: " + receive);
+                 }
+
+                 System.out.print(readLine());
+                 name = scanner.next();
+                 this.write(name);
+
+                 receive = this.readLine();
+                 wrongInput = !receive.equals("!acceptedInput");
+             } while (wrongInput);
 
                                 // password
              System.out.print(readLine());
-             write(scanner2.next());
+             this.write(scanner.next());
 
                                 // login message
              receive = readLine();

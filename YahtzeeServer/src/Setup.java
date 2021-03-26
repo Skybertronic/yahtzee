@@ -18,16 +18,8 @@ public class Setup {
     private static int latestLocalPort = 1000;
 
     public Setup() {
-        Database database = new Database();
-        /*
-        try {
-        while (database.displayUsers().next()) {
-                System.out.println(database.displayUsers().getString("fname" + " " + database.displayUsers().getString("lname")));
-        }
-        } catch (SQLException | ClassNotFoundException exception) {
-            exception.printStackTrace();
-        }
-        */
+        new Database();
+
         System.out.println("Server v2.1.0 by Skybertronic");
 
         USERS = new ArrayList<>();
@@ -90,7 +82,10 @@ public class Setup {
 
                                 // client gets linked to a player
     private Player loginPlayer(Socket loginSocket) throws IOException {
+        final int MAX_PLAYER_NAME_LENGTH = 12;
         String name, password;
+
+
         BufferedReader bufferedReader;
         PrintWriter printWriter;
 
@@ -99,9 +94,26 @@ public class Setup {
         printWriter = new PrintWriter(new OutputStreamWriter(loginSocket.getOutputStream()));
 
                                 // input name
-        printWriter.println("Name: ");
+        boolean wrongInput;
+        do {
+            wrongInput = false;
+
+            printWriter.println("Name: ");
+            printWriter.flush();
+            name = bufferedReader.readLine();
+            if (name.length()>MAX_PLAYER_NAME_LENGTH) {
+                wrongInput = true;
+
+                printWriter.println(MAX_PLAYER_NAME_LENGTH);
+                printWriter.flush();
+
+                System.out.println("Test");
+            }
+        } while (wrongInput);
+
+        System.out.println("Test 2");
+        printWriter.println("!acceptedInput");
         printWriter.flush();
-        name = bufferedReader.readLine();
 
                                 // input password
         printWriter.println("Password: ");
