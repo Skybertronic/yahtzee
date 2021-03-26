@@ -11,7 +11,7 @@ public class Client {
         int port = 0;
         Scanner scanner;
 
-        System.out.println("Client v2.1.0 by Skybertronic");
+        System.out.println("Client v2.1.1 by Skybertronic");
         printRules();
 
         do {
