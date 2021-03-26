@@ -6,8 +6,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
-                                // creates games
+// creates games
 public class Setup {
     private final Administration ADMINISTRATION;
     private final List<User> USERS;
@@ -24,11 +25,16 @@ public class Setup {
         Thread thread = new Thread(ADMINISTRATION);
         thread.start();
 
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Do you want to print your IP-address?: ");
+
                                 // prints ip-address to ease the connection
-        try {
-            System.out.println("IP-Address: " + InetAddress.getLocalHost().getHostAddress());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        if (scanner.next().equalsIgnoreCase("yes")) {
+            try {
+                System.out.println("IP-address: " + InetAddress.getLocalHost().getHostAddress());
+            } catch (UnknownHostException unknownHostException) {
+                unknownHostException.printStackTrace();
+            }
         }
 
     }
