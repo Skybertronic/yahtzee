@@ -3,7 +3,7 @@
 ## How to play
 
 ### Requirements
-* Everyone has to have openjdk 15 installed
+* Everyone has to have openjdk 15 (or a newer version) installed
 * One person has to run the server
 * Every player has to run a client
 
