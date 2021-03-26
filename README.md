@@ -12,7 +12,7 @@
 
 2. Change the directory to the file-path:
 ```sh
-cd path\to\the\file
+cd path\to\the\file-path
 ```
 
 3. Execute the file:
