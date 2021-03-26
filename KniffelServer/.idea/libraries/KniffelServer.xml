@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="KniffelServer">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/out/artifacts/KniffelServer_jar/KniffelServer.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
