@@ -23,6 +23,7 @@ java -jar filename.jar
 ## Possible errors
 * A client or a server isn't found
   * Check if the network you're in is set to be a private network
+  * Start the server once and allow the network access
 
 ## Additional information
 * This program supports local multiplayer and single player
