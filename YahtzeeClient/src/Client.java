@@ -4,48 +4,13 @@ import java.util.Scanner;
 
 public class Client {
     private java.net.Socket socket;
-    private String name;
+    BufferedReader bufferedReader;
 
     public Client() {
-        boolean wrongInput;
-        int port = 0;
-        Scanner scanner;
 
         System.out.println("Client v2.1.1 by Skybertronic");
         printRules();
-
-        do {
-            wrongInput = false;
-
-                                // choose ip
-            scanner = new Scanner(System.in);
-            System.out.print("IP: ");
-            String ip = scanner.next();
-
-                                // choose port/lobby
-            try {
-                scanner = new Scanner(System.in);
-                System.out.print("Lobby: ");
-                port = scanner.nextInt();
-                System.out.println();
-
-            } catch (InputMismatchException inputMismatchException) {
-                wrongInput = true;
-                System.out.printf("%n%s%n%n", "Lobby/Port is always a number!");
-            }
-
-                    // creates socket based on ip and port
-            if (!wrongInput) {
-                try {
-                    socket = new java.net.Socket(ip, port);
-                } catch (IOException e) {
-                    wrongInput = true;
-                    System.out.println("Not able to connect!\nPlease use the IP written in the first line of the server-log or localhost\n");
-                }
-
-            }
-        } while (wrongInput);
-
+        while (!connect());
     }
 
 
@@ -64,16 +29,53 @@ public class Client {
     }
 
                                 // handles receiving a message
-    public String readLine() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        return bufferedReader.readLine();
+    public String read() throws IOException {
+        String message = bufferedReader.readLine();
+        return message;
     }
 
                                 // handles sending a message
     public void write(String message) throws IOException {
         PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+
         printWriter.println(message);
         printWriter.flush();
+    }
+
+    public boolean connect() {
+        int port;
+        Scanner scanner= new Scanner(System.in);;
+
+                                // choose ip
+            System.out.print("IP: ");
+            String ip = scanner.next();
+
+                                // choose port/lobby
+            try {
+                System.out.print("Lobby: ");
+                port = scanner.nextInt();
+                System.out.println();
+
+            } catch (InputMismatchException inputMismatchException) {
+                System.out.printf("%n%s%n%n", "Lobby/Port is always a number!");
+                return false;
+            }
+
+                                // creates socket based on ip and port
+        try {
+            socket = new java.net.Socket(ip, port);
+        } catch (IOException e) {
+            System.out.println("Not able to connect!\nPlease use the IP written in the first line of the server-log or localhost\n");
+            return false;
+        }
+
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        return true;
     }
 
                                 // login process | loops until name and password are valid
@@ -89,20 +91,20 @@ public class Client {
                      System.out.println("The maximal length is: " + receive);
                  }
 
-                 System.out.print(readLine());
-                 name = scanner.next();
+                 System.out.print(read());
+                 String name = scanner.next();
                  this.write(name);
 
-                 receive = this.readLine();
+                 receive = this.read();
                  wrongInput = !receive.equals("!acceptedInput");
              } while (wrongInput);
 
                                 // password
-             System.out.print(readLine());
+             System.out.print(read());
              this.write(scanner.next());
 
                                 // login message
-             receive = readLine();
+             receive = read();
              switch (receive) {
                  case "!registered" -> System.out.println("New Account created!");
                  case "!loginSuccessful" -> System.out.println("Login successful!");
@@ -112,32 +114,32 @@ public class Client {
         } while (receive.equals("!loginFailed"));
 
                                 // assigns role | host or not host
-        receive = readLine();
+        receive = read();
+        System.out.println(receive);
         return receive.equals("!isHost");
     }
 
                                 // host allows other people to join
-    public void fillLobby() throws IOException {
+    public void hostFillsLobby() throws IOException {
         String send;
         Scanner scanner = new Scanner(System.in);
 
         System.out.printf("%n%s%n%n", "You are the host of this game!");
 
         do  {
-            System.out.print(readLine());
+            System.out.print(read() + " joined the game, add again?: ");
             send = scanner.nextLine();
             write(send);
         } while (send.equalsIgnoreCase("yes"));
     }
 
                                 // host assigns type of game
-    public void assignGameType() throws IOException {
+    public void hostAssignGameType() throws IOException {
         String message;
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println();
         do {
-            System.out.print("Linear or parallel?: ");
+            System.out.printf("%n%s", "Linear or parallel?: ");
             message = scanner.next();
         } while (!message.equalsIgnoreCase("linear") && !message.equalsIgnoreCase("parallel"));
 
@@ -148,62 +150,34 @@ public class Client {
     public void waitingForHost() throws IOException {
 
         System.out.printf("%n%s%n", "Waiting for host!");
-        if (!readLine().equals("!startGame")) {
-            while (!readLine().equals("!startGame"));
+        if (!read().equals("!startGame")) {
+            while (!read().equals("!startGame"));
         }
     }
 
                                 // the game itself
     public void inGame() throws IOException {
         String receive;
-        boolean writeable = false;
         Scanner scanner = new Scanner(System.in);
 
-        try {
             do {
-                receive = readLine();
+                receive = read();
 
                                 // prints full lines
-                if (receive.equals("!startPrintLn")) {
-                    System.out.println();
-                    receive = readLine();
-                    while (!receive.equals("!endPrintLn")) {
-                        System.out.println(receive);
-                        receive = readLine();
-                    }
-                }
-                                // prints open lines
-                else if (receive.equals("!startPrint")) {
-                    System.out.println();
-                    receive = readLine();
-                    while (!receive.equals("!endPrint")) {
-                        System.out.print(receive);
-                        receive = readLine();
-                    }
-                }
-                                // allows input
-                else if (receive.equals("!getInput") && writeable) {
-                    write(scanner.next());
-                }
-                                // indicates the start of the turn
-                else if (receive.equals("!startTurn" + name)) {
-                    System.out.printf("%n%s%n", "It´s your turn!");
-                    writeable = true;
-                }
-                                // indicates the end of the turn
-                else if (receive.equals("!endTurn" + name)) {
-                    System.out.printf("%n%s%n", "Turn finished!");
-                    writeable = false;
-                }
-                                // after the game ended
-                else if (receive.equals("!waitingForResults")) {
-                    writeable = true;
-                }
+                switch (receive) {
+                    case "!startTurn" -> System.out.printf("%n%s%n", "It´s your turn!");
+                    case "!endTurn" -> System.out.printf("%n%s%n", "Turn finished!");
+                    case "!getInput" -> write(scanner.next());
+                    case "!startPrint" -> {
 
+                        receive = read();
+                        while (!receive.equals("!endPrint")) {
+                            System.out.printf("%n%s", receive);
+                            receive = read();
+                        }
+                    }
+                }
             } while (!receive.equals("!endGame"));
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
     }
 
                                 // closes the socket
@@ -219,8 +193,8 @@ public class Client {
         try {
                                 // login returns host (true) or not host (false)
             if (client.login()) {
-                client.fillLobby();
-                client.assignGameType();
+                client.hostFillsLobby();
+                client.hostAssignGameType();
             }
             else {
                 client.waitingForHost();

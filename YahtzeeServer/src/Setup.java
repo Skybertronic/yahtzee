@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -28,11 +27,10 @@ public class Setup {
         Thread thread = new Thread(ADMINISTRATION);
         thread.start();
 
-        Scanner scanner = new Scanner(System.in);
         System.out.print("Do you want to print your IP-address?: ");
 
                                 // prints ip-address to ease the connection
-        if (scanner.next().equalsIgnoreCase("yes")) {
+        if (new Scanner(System.in).next().equalsIgnoreCase("yes")) {
             try {
                 System.out.println("IP-address: " + InetAddress.getLocalHost().getHostAddress());
             } catch (UnknownHostException unknownHostException) {
@@ -40,6 +38,25 @@ public class Setup {
             }
         }
 
+    }
+
+    public void write(PrintWriter printWriter, String message) {
+
+        System.out.println("TestMessage " + message);
+        printWriter.println(message);
+        printWriter.flush();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+    }
+
+    public String read(BufferedReader bufferedReader) throws IOException {
+        String message = bufferedReader.readLine();
+        System.out.println(message);
+        return message;
     }
 
                                 // creates the server socket for the different games
@@ -65,15 +82,15 @@ public class Setup {
             } while (player == null);
 
                                 //  client becomes the host or stays a player | relevant for the client
-            player.write(setRoleClient(isHost));
+            write(player.getPrintWriter(), setRoleClient(isHost));
             isHost = false;
 
                                 // adds player to the lobby
             players.add(player);
 
                                 // host decides how many people are able to join the lobby
-            players.get(0).write(player.getUSER().getName() + " joined the game, add again?: ");
-        } while (players.get(0).readLine().equalsIgnoreCase("yes"));
+            write(players.get(0).getPrintWriter(), player.getUSER().getName());
+        } while (players.get(0).read().equalsIgnoreCase("yes"));
 
         System.out.println("Lobby " + latestLocalPort + " is closed!");
 
@@ -98,27 +115,20 @@ public class Setup {
         do {
             wrongInput = false;
 
-            printWriter.println("Name: ");
-            printWriter.flush();
-            name = bufferedReader.readLine();
+            write(printWriter, "Name: ");
+            name = read(bufferedReader);
+
             if (name.length()>MAX_PLAYER_NAME_LENGTH) {
                 wrongInput = true;
 
-                printWriter.println(MAX_PLAYER_NAME_LENGTH);
-                printWriter.flush();
-
-                System.out.println("Test");
+                write(printWriter, "" + MAX_PLAYER_NAME_LENGTH);
             }
         } while (wrongInput);
-
-        System.out.println("Test 2");
-        printWriter.println("!acceptedInput");
-        printWriter.flush();
+        write(printWriter, "!acceptedInput");
 
                                 // input password
-        printWriter.println("Password: ");
-        printWriter.flush();
-        password = bufferedReader.readLine();
+        write(printWriter, "Password: ");
+        password = read(bufferedReader);
 
                                 // compares name and password with every existing user
         for (User user: USERS) {
@@ -128,16 +138,14 @@ public class Setup {
                 if (user.getPassword().equals(password) && !user.isInGame()) {
 
                                 // login successful
-                    printWriter.println("!loginSuccessful");
-                    printWriter.flush();
+                    write(printWriter, "!loginSuccessful");
                     user.setInGame(true);
 
                     return new Player(user, loginSocket, bufferedReader, printWriter);
                 }
 
                                 // wrong password
-                printWriter.println("!loginFailed");
-                printWriter.flush();
+                write(printWriter, "!loginFailed");
 
                 return null;
             }
@@ -148,8 +156,7 @@ public class Setup {
         user.setInGame(true);
         USERS.add(user);
 
-        printWriter.println("!registered");
-        printWriter.flush();
+        write(printWriter, "!registered");
 
         return new Player(user, loginSocket, bufferedReader, printWriter);
     }
@@ -172,7 +179,7 @@ public class Setup {
         Chart chart = new Chart(players);
 
                                 // host chooses game-type
-        switch (players[0].readLine()) {
+        switch (players[0].read()) {
 
             case "linear" -> {
 

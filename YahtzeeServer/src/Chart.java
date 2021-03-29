@@ -48,8 +48,6 @@ public class Chart {
             playersRegistered.add(player.getPoints().getRegistered());
         }
 
-        receivingPlayer.write("!startPrintLn");
-
                                 // appends all the names to the to be send row
         row.append(String.format("%-" + (LONGESTDESIGNATION + space) + "s", "NAMES:"));
         for (Player player : players) {
@@ -84,16 +82,12 @@ public class Chart {
             receivingPlayer.write(row.toString());
             row.delete(0, row.length());
         }
-
-        receivingPlayer.write("!endPrintLn");
     }
 
                                 // sends the point-sheet
     public void sendPoints(Player player, String section) throws IOException {
         String[] description = {"ID", "DESIGNATION", "NOT PLAYED", "POINTS"};
         StringBuilder row = new StringBuilder();
-
-        player.write("!startPrintLn");
 
                                 // prints designations
         row.append(String.format("%-3s", description[0]));
@@ -141,8 +135,6 @@ public class Chart {
                 row.delete(0, row.length());
             }
         }
-
-        player.write("!endPrintLn");
     }
 
                                 // get-/set- methods

@@ -58,17 +58,12 @@ public class Game implements Runnable {
                 wrongInput = false;
                 changes.clear();
 
-                player.write("!startPrintLn");
                 player.write(printDices(player));
-                player.write("!endPrintLn");
 
                 // manages the input
-                player.write("!startPrint");
                 player.write("Which dices do you want to change?: ");
-                player.write("!endPrint");
 
-                player.write("!getInput");
-                message = player.readLine();
+                message = player.getInput();
 
                 // player doesn't want to change any dices
                 if (message.startsWith(",")) {
@@ -83,9 +78,7 @@ public class Game implements Runnable {
                 } catch (NumberFormatException numberFormatException) {
                     wrongInput = true;
 
-                    player.write("!startPrintLn");
                     player.write("Wrong input!");
-                    player.write("!endPrintLn");
                 }
             } while (wrongInput);
 
@@ -97,9 +90,7 @@ public class Game implements Runnable {
         }
 
                                 // sends the finals values to the player
-        player.write("!startPrintLn");
         player.write(printDices(player));
-        player.write("!endPrintLn");
     }
 
                                 // manages the chart input
@@ -109,24 +100,18 @@ public class Game implements Runnable {
 
         do {
                                 // manages the choosing of the upper or lower bracket
-            player.write("!startPrint");
             player.write("Upper or lower bracket?: ");
-            player.write("!endPrint");
 
-            player.write("!getInput");
-            section = player.readLine();
+            section = player.getInput();
 
             if (section.toLowerCase().startsWith("u") || section.toLowerCase().startsWith("l")) {
 
                                 // manages the choosing of the field
                 CHART.sendPoints(player, section);
 
-                player.write("!startPrint");
                 player.write("ID: ");
-                player.write("!endPrint");
 
-                player.write("!getInput");
-                position = Integer.parseInt(player.readLine())-1;
+                position = Integer.parseInt(player.getInput())-1;
             }
         } while (!player.getPoints().setScore(section, position , player.getDices().getValues()));
     }
@@ -151,12 +136,12 @@ public class Game implements Runnable {
         for (Player player: CHART.getPlayers()) {
             for (boolean registered : player.getPoints().getRegistered()) {
                 if (!registered) {
-                    return "The game hasn't ended yet!";
+                    return "The game isn't finished yet!";
                 }
             }
         }
 
-        return "The game has ended!";
+        return "The game is finished!";
     }
 
     @Override
@@ -165,11 +150,11 @@ public class Game implements Runnable {
         try {
             while (endGame()) {
                 for (Player player: PLAYER) {
-                    player.write("!startTurn" + player.getUSER().getName());
+                    player.startTurn();
                     sendChartToEveryone();
                     changeDices(player);
                     setPoints(player);
-                    player.write("!endTurn" + player.getUSER().getName());
+                    player.endTurn();
                 }
             }
 
@@ -178,16 +163,10 @@ public class Game implements Runnable {
 
             String status;
             do {
-                PLAYER[0].write("!startPrintLn");
                 PLAYER[0].write(printStatusResult());
-                PLAYER[0].write("!endPrintLn");
+                PLAYER[0].write("Do you want to end the game?: ");
 
-                PLAYER[0].write("!startPrint");
-                PLAYER[0].write("Do you want to print the results?: ");
-                PLAYER[0].write("!endPrint");
-
-                PLAYER[0].write("!getInput");
-                status = PLAYER[0].readLine();
+                status = PLAYER[0].getInput();
             } while (!status.equals("yes"));
 
             sendChartToEveryone();

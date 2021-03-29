@@ -1,6 +1,7 @@
 import java.io.*;
+import java.net.Socket;
 
-                                // saves name and password
+// saves name and password
 public class User {
     private final String name, password;
     private boolean inGame;
@@ -48,30 +49,71 @@ class Player {
         this.printWriter = printWriter;
     }
 
-                                    // reads stuff
-    public String readLine() throws IOException {
+    public String read() throws IOException {
         return bufferedReader.readLine();
     }
 
                                     // sends stuff
-    public void write(String message) throws IOException {
-        printWriter.println(message);
+
+    public void write(String message) {
+        System.out.println("Test "+ message); // DEBUG
+
+        switch (message) {
+            case "!startGame":
+            case "!isHost":
+            case "!isPlayer":
+            case "!startTurn":
+            case "!endTurn":
+            case "!getInput":
+            case "!endGame":
+                printWriter.println(message);
+
+            default: {
+                printWriter.println("!startPrint");
+                send();
+                printWriter.println(message);
+                send();
+                printWriter.println("!endPrint");
+        }
+
+            send();
+        }
+    }
+
+    public String getInput() throws IOException {
+
+        printWriter.println("!getInput");
+        send();
+
+        return read();
+    }
+
+    public void startTurn() {
+
+        printWriter.println("!startTurn");
+        send();
+    }
+
+    public void endTurn() {
+
+        printWriter.println("!endTurn");
+        send();
+    }
+
+    public void send() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
         printWriter.flush();
 
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
                                     // get-/ set- methods
     public User getUSER() {
         return USER;
-    }
-
-    public java.net.Socket getSocket() {
-        return socket;
     }
 
     public Points getPoints() {
@@ -80,5 +122,13 @@ class Player {
 
     public Dices getDices() {
         return dices;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public PrintWriter getPrintWriter() {
+        return printWriter;
     }
 }
