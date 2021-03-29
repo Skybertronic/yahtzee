@@ -61,8 +61,7 @@ public class Game implements Runnable {
                 player.write(printDices(player));
 
                 // manages the input
-                player.write("Which dices do you want to change?: ");
-
+                player.write("!changeDices");
                 message = player.getInput();
 
                 // player doesn't want to change any dices
@@ -78,7 +77,7 @@ public class Game implements Runnable {
                 } catch (NumberFormatException numberFormatException) {
                     wrongInput = true;
 
-                    player.write("Wrong input!");
+                    player.write("!wrongInput!");
                 }
             } while (wrongInput);
 
@@ -100,7 +99,7 @@ public class Game implements Runnable {
 
         do {
                                 // manages the choosing of the upper or lower bracket
-            player.write("Upper or lower bracket?: ");
+            player.write("!chooseBracket");
 
             section = player.getInput();
 
@@ -109,7 +108,7 @@ public class Game implements Runnable {
                                 // manages the choosing of the field
                 CHART.sendPoints(player, section);
 
-                player.write("ID: ");
+                player.write("!chooseID");
 
                 position = Integer.parseInt(player.getInput())-1;
             }
@@ -136,12 +135,12 @@ public class Game implements Runnable {
         for (Player player: CHART.getPlayers()) {
             for (boolean registered : player.getPoints().getRegistered()) {
                 if (!registered) {
-                    return "The game isn't finished yet!";
+                    return "!isNotFinished";
                 }
             }
         }
 
-        return "The game is finished!";
+        return "!isFinished";
     }
 
     @Override
@@ -164,7 +163,7 @@ public class Game implements Runnable {
             String status;
             do {
                 PLAYER[0].write(printStatusResult());
-                PLAYER[0].write("Do you want to end the game?: ");
+                PLAYER[0].write("!endGame");
 
                 status = PLAYER[0].getInput();
             } while (!status.equals("yes"));

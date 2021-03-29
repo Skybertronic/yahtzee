@@ -4,11 +4,12 @@ import java.util.Scanner;
 
 public class Client {
     private java.net.Socket socket;
-    BufferedReader bufferedReader;
+    private BufferedReader bufferedReader;
+    private final Scanner scanner = new Scanner(System.in);
 
     public Client() {
 
-        System.out.println("Client v2.1.1 by Skybertronic");
+        System.out.println("Client v2.1.5 by Skybertronic");
         printRules();
         while (!connect());
     }
@@ -25,12 +26,13 @@ public class Client {
         System.out.println("5. If you don't want to change dices start your input with an \",\"");
         System.out.println("6. If you want to navigate between brackets, you have to input an non existing ID");
         System.out.println("7. I don´t know how many players the game can support, it depends on the length of the names :/");
-        System.out.println("8. This is the first multiplayer version I created, so please try not to make inputs at the same time.. ty :D\n");
+        System.out.println("8. This is the first multiplayer version I created, so please try not to make inputs at the same time.. ty :D");
     }
 
                                 // handles receiving a message
     public String read() throws IOException {
         String message = bufferedReader.readLine();
+
         return message;
     }
 
@@ -44,20 +46,18 @@ public class Client {
 
     public boolean connect() {
         int port;
-        Scanner scanner= new Scanner(System.in);;
 
                                 // choose ip
-            System.out.print("IP: ");
+            System.out.printf("%n%s", "IP: ");
             String ip = scanner.next();
 
                                 // choose port/lobby
             try {
                 System.out.print("Lobby: ");
                 port = scanner.nextInt();
-                System.out.println();
 
             } catch (InputMismatchException inputMismatchException) {
-                System.out.printf("%n%s%n%n", "Lobby/Port is always a number!");
+                System.out.printf("%n%s%n", "Lobby/Port is always a number!");
                 return false;
             }
 
@@ -65,7 +65,8 @@ public class Client {
         try {
             socket = new java.net.Socket(ip, port);
         } catch (IOException e) {
-            System.out.println("Not able to connect!\nPlease use the IP written in the first line of the server-log or localhost\n");
+            System.out.printf("%n%s%n", "Not able to connect!");
+            System.out.println("Please use the IP written in the first line of the server-log or localhost");
             return false;
         }
 
@@ -80,96 +81,95 @@ public class Client {
 
                                 // login process | loops until name and password are valid
     public boolean login() throws IOException {
-        String receive = "";
-        Scanner scanner = new Scanner(System.in);
-        boolean wrongInput = false;
+        String receive;
+        boolean wrongInput;
 
          do {
                                 // nickname
              do {
-                 if (wrongInput) {
-                     System.out.println("The maximal length is: " + receive);
-                 }
-
-                 System.out.print(read());
+                 System.out.printf("%n%s", "Name: ");
                  String name = scanner.next();
                  this.write(name);
 
                  receive = this.read();
                  wrongInput = !receive.equals("!acceptedInput");
+
+                 if (wrongInput) {
+                     System.out.println("The maximal length is: " + receive);
+                 }
              } while (wrongInput);
 
                                 // password
-             System.out.print(read());
+             System.out.print("Password: ");
              this.write(scanner.next());
 
                                 // login message
-             receive = read();
-             switch (receive) {
+
+             switch (read()) {
                  case "!registered" -> System.out.println("New Account created!");
                  case "!loginSuccessful" -> System.out.println("Login successful!");
-                 case "!loginFailed" -> System.out.println("Login failed, try again!");
+                 case "!loginFailed" -> {
+                     wrongInput = true;
+                     System.out.println("Login failed, try again!");
+                 }
              }
 
-        } while (receive.equals("!loginFailed"));
+        } while (wrongInput);
 
                                 // assigns role | host or not host
-        receive = read();
-        System.out.println(receive);
-        return receive.equals("!isHost");
+        return read().equals("!isHost");
     }
 
                                 // host allows other people to join
     public void hostFillsLobby() throws IOException {
         String send;
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.printf("%n%s%n%n", "You are the host of this game!");
+        System.out.printf("%n%s%n", "You are the host of this game!");
 
         do  {
-            System.out.print(read() + " joined the game, add again?: ");
-            send = scanner.nextLine();
+            System.out.printf("%n%s", read() + " joined the game, add again?: ");
+            send = scanner.next();
             write(send);
         } while (send.equalsIgnoreCase("yes"));
     }
 
                                 // host assigns type of game
     public void hostAssignGameType() throws IOException {
-        String message;
-        Scanner scanner = new Scanner(System.in);
 
         do {
-            System.out.printf("%n%s", "Linear or parallel?: ");
-            message = scanner.next();
-        } while (!message.equalsIgnoreCase("linear") && !message.equalsIgnoreCase("parallel"));
 
-        write(message);
+            System.out.printf("%n%s", "Linear or parallel?: ");
+            write(scanner.next());
+        } while (read().equals("!wrongInput"));
+
     }
 
                                 // loops until the host assigned a game type
     public void waitingForHost() throws IOException {
 
         System.out.printf("%n%s%n", "Waiting for host!");
-        if (!read().equals("!startGame")) {
-            while (!read().equals("!startGame"));
-        }
+        while (!read().equals("!startGame"));
     }
 
                                 // the game itself
     public void inGame() throws IOException {
         String receive;
-        Scanner scanner = new Scanner(System.in);
 
             do {
                 receive = read();
 
-                                // prints full lines
                 switch (receive) {
                     case "!startTurn" -> System.out.printf("%n%s%n", "It´s your turn!");
                     case "!endTurn" -> System.out.printf("%n%s%n", "Turn finished!");
+                    case "!changeDices" -> System.out.printf("%n%s", "Which dices do you want to change?: ");
+                    case "!chooseBracket" -> System.out.printf("%n%s", "Upper or lower bracket?: ");
+                    case "!chooseID" -> System.out.printf("%n%s", "ID: ");
+                    case "!isFinished" -> System.out.printf("%n%s", "The game is finished!");
+                    case "!isNotFinished" -> System.out.printf("%n%s", "The game isn't finished yet!");
                     case "!getInput" -> write(scanner.next());
+                    case "!wrongInput" -> System.out.printf("%n%s", "Wrong input!");
+                    case "!endGame" -> System.out.printf("%n%s", "Do you want to end the game?: ");
                     case "!startPrint" -> {
-
                         receive = read();
                         while (!receive.equals("!endPrint")) {
                             System.out.printf("%n%s", receive);
@@ -177,7 +177,7 @@ public class Client {
                         }
                     }
                 }
-            } while (!receive.equals("!endGame"));
+            } while (!receive.equals("!gameEnded"));
     }
 
                                 // closes the socket

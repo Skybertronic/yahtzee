@@ -19,7 +19,7 @@ public class Setup {
     public Setup() {
         new Database();
 
-        System.out.println("Server v2.1.0 by Skybertronic");
+        System.out.println("Server v2.1.4 by Skybertronic");
 
         USERS = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public class Setup {
 
     public void write(PrintWriter printWriter, String message) {
 
-        System.out.println("TestMessage " + message);
+        System.out.println("TestSend " + message);
         printWriter.println(message);
         printWriter.flush();
 
@@ -115,7 +115,6 @@ public class Setup {
         do {
             wrongInput = false;
 
-            write(printWriter, "Name: ");
             name = read(bufferedReader);
 
             if (name.length()>MAX_PLAYER_NAME_LENGTH) {
@@ -127,7 +126,6 @@ public class Setup {
         write(printWriter, "!acceptedInput");
 
                                 // input password
-        write(printWriter, "Password: ");
         password = read(bufferedReader);
 
                                 // compares name and password with every existing user
@@ -175,38 +173,50 @@ public class Setup {
                                 // last settings, before the game starts
     private void createGame(Player[] players) throws IOException {
         Game game;
+        boolean wrongInput;
         Thread gameThread;
         Chart chart = new Chart(players);
 
                                 // host chooses game-type
-        switch (players[0].read()) {
+        do {
+            wrongInput = false;
 
-            case "linear" -> {
+            switch (players[0].read()) {
 
-                game = new Game(latestServerSocket, chart, players);
-                ADMINISTRATION.getGAMES().add(game);
+                case "linear" -> {
 
-                                // allows multiple games to run at the same time
-                gameThread = new Thread(game);
-                gameThread.start();
-                ADMINISTRATION.getTHREADS().add(gameThread);
-            }
-
-                                // players play there games separately and the chart gets synchronized
-            case "parallel" -> {
-
-                for (Player player : players) {
-
-                    game = new Game(latestServerSocket, chart, new Player[]{player});
+                    game = new Game(latestServerSocket, chart, players);
                     ADMINISTRATION.getGAMES().add(game);
 
-                                // allows multiple games to run at the same time
+                    // allows multiple games to run at the same time
                     gameThread = new Thread(game);
                     gameThread.start();
                     ADMINISTRATION.getTHREADS().add(gameThread);
                 }
+
+                // players play there games separately and the chart gets synchronized
+                case "parallel" -> {
+
+                    for (Player player : players) {
+
+                        game = new Game(latestServerSocket, chart, new Player[]{player});
+                        ADMINISTRATION.getGAMES().add(game);
+
+                        // allows multiple games to run at the same time
+                        gameThread = new Thread(game);
+                        gameThread.start();
+                        ADMINISTRATION.getTHREADS().add(gameThread);
+                    }
+                }
+                default -> {
+
+                    wrongInput = true;
+                    players[0].write("!wrongInput");
+                }
             }
-        }
+        } while (wrongInput);
+
+        players[0].write("!acceptedInput");
 
         System.out.println("Game " + latestLocalPort + " starts!");
 
@@ -220,7 +230,6 @@ public class Setup {
         Setup setup = new Setup();
 
         try {
-
                                 // creates infinite lobbies and transforms them into games games
             while (true) {
 

@@ -56,7 +56,7 @@ class Player {
                                     // sends stuff
 
     public void write(String message) {
-        System.out.println("Test "+ message); // DEBUG
+        System.out.println("TestSend "+ message); // DEBUG
 
         switch (message) {
             case "!startGame":
@@ -64,7 +64,13 @@ class Player {
             case "!isPlayer":
             case "!startTurn":
             case "!endTurn":
+            case "!changeDices":
+            case "!chooseBracket":
+            case "!chooseID":
             case "!getInput":
+            case "!wrongInput":
+            case "!isFinished":
+            case "!isNotFinished":
             case "!endGame":
                 printWriter.println(message);
 
@@ -78,6 +84,16 @@ class Player {
 
             send();
         }
+    }
+
+    public void send() {
+
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+        printWriter.flush();
     }
 
     public String getInput() throws IOException {
@@ -98,17 +114,6 @@ class Player {
 
         printWriter.println("!endTurn");
         send();
-    }
-
-    public void send() {
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
-        }
-
-        printWriter.flush();
-
     }
 
                                     // get-/ set- methods

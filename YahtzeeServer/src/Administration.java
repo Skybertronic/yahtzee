@@ -20,7 +20,7 @@ public class Administration implements Runnable {
                 if (!game.isRunning()) {
                     System.out.println("server.Game " + game.getSERVERSOCKET() + " finished!");
                     for (Player player: game.getPLAYER()) {
-                        player.write("!endGame");
+                        player.write("!gameEnded");
 
                         player.getSocket().close();
                         player.getUSER().setInGame(false);
