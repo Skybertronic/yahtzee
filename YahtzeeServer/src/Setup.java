@@ -42,7 +42,7 @@ public class Setup {
 
     public void write(PrintWriter printWriter, String message) {
 
-        System.out.println("TestSend " + message);
+        System.out.println("SystemTestSend " + message);
         printWriter.println(message);
         printWriter.flush();
 
@@ -172,10 +172,10 @@ public class Setup {
 
                                 // last settings, before the game starts
     private void createGame(Player[] players) throws IOException {
-        Game game;
         boolean wrongInput;
         Thread gameThread;
         Chart chart = new Chart(players);
+        ArrayList<Game> lobbies = new ArrayList<>();
 
                                 // host chooses game-type
         do {
@@ -183,33 +183,16 @@ public class Setup {
 
             switch (players[0].read()) {
 
-                case "linear" -> {
+                case "linear" -> lobbies.add(new Game(latestServerSocket, chart, players));
 
-                    game = new Game(latestServerSocket, chart, players);
-                    ADMINISTRATION.getGAMES().add(game);
-
-                    // allows multiple games to run at the same time
-                    gameThread = new Thread(game);
-                    gameThread.start();
-                    ADMINISTRATION.getTHREADS().add(gameThread);
-                }
-
-                // players play there games separately and the chart gets synchronized
+                                // players play there games separately and the chart gets synchronized
                 case "parallel" -> {
-
                     for (Player player : players) {
-
-                        game = new Game(latestServerSocket, chart, new Player[]{player});
-                        ADMINISTRATION.getGAMES().add(game);
-
-                        // allows multiple games to run at the same time
-                        gameThread = new Thread(game);
-                        gameThread.start();
-                        ADMINISTRATION.getTHREADS().add(gameThread);
+                        lobbies.add(new Game(latestServerSocket, chart, new Player[]{player}));
                     }
                 }
-                default -> {
 
+                default -> {
                     wrongInput = true;
                     players[0].write("!wrongInput");
                 }
@@ -218,12 +201,20 @@ public class Setup {
 
         players[0].write("!acceptedInput");
 
-        System.out.println("Game " + latestLocalPort + " starts!");
-
                                 // sends the command to start the game to every player part of the lobby
         for (Player player: players) {
             player.write("!startGame");
         }
+
+        for (Game lobby: lobbies) {
+            ADMINISTRATION.getGAMES().add(lobby);
+
+            gameThread = new Thread(lobby);
+            gameThread.start();
+            ADMINISTRATION.getTHREADS().add(gameThread);
+        }
+
+        System.out.println("Game " + latestLocalPort + " starts!");
     }
 
     public static void main(String[] args) {

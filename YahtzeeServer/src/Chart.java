@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.ArrayList;
 
                                 // creates / sends the chart
@@ -36,7 +35,7 @@ public class Chart {
     }
 
                                 // sends the chart to the active player
-    public void sendChart(Player receivingPlayer) throws IOException {
+    public void sendChart(Player receivingPlayer) {
         final int space = 3;
         ArrayList<Integer[]> playersPoints = new ArrayList<>();
         ArrayList<boolean[]> playersRegistered = new ArrayList<>();
@@ -55,7 +54,7 @@ public class Chart {
         }
 
                                 // sends row and deletes the cache
-        receivingPlayer.write(row.toString());
+        receivingPlayer.writeMultipleParagraphs(row.toString());
         row.delete(0, row.length());
 
         for (int i=0; i<playersPoints.get(0).length; i++) {
@@ -79,13 +78,15 @@ public class Chart {
             }
 
                                 // sends row and deletes the cache
-            receivingPlayer.write(row.toString());
+            receivingPlayer.writeMultipleParagraphs(row.toString());
             row.delete(0, row.length());
         }
+
+        receivingPlayer.writeMultipleParagraphs(" ");
     }
 
                                 // sends the point-sheet
-    public void sendPoints(Player player, String section) throws IOException {
+    public void sendPoints(Player receivingPlayer, String section) {
         String[] description = {"ID", "DESIGNATION", "NOT PLAYED", "POINTS"};
         StringBuilder row = new StringBuilder();
 
@@ -95,7 +96,7 @@ public class Chart {
         row.append(String.format("%-"+ LONGESTDESIGNATION + "s", description[2]));
         row.append(String.format("%s%n", description[3]));
 
-        player.write(row.toString());
+        receivingPlayer.writeMultipleParagraphs(row.toString());
         row.delete(0, row.length());
 
         if (section.toLowerCase().startsWith("u")) {
@@ -105,11 +106,11 @@ public class Chart {
 
                 row.append(String.format("%-3d", (i+1)));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "s", DESIGNATIONS[i]));
-                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !player.getPoints().getRegistered()[i]));
-                row.append(String.format("%d", player.getPoints().scoreUpperSection(i, player.getDices().getValues())));
+                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPoints().getRegistered()[i]));
+                row.append(String.format("%d", receivingPlayer.getPoints().scoreUpperSection(i, receivingPlayer.getDices().getValues())));
 
                                 // sends line and deletes the cache
-                player.write(row.toString());
+                receivingPlayer.writeMultipleParagraphs(row.toString());
                 row.delete(0, row.length());
             }
         }
@@ -122,19 +123,21 @@ public class Chart {
                                 // one formatted row
                 row.append(String.format("%-3d", (i+1)));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "s", DESIGNATIONS[i+9]));
-                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !player.getPoints().getRegistered()[i+9]));
-                if (player.getPoints().condition(i, player.getDices().getValues())) {
-                    row.append(String.format("%d", player.getPoints().scoreLowerSection(i, player.getDices().getValues())));
+                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPoints().getRegistered()[i+9]));
+                if (receivingPlayer.getPoints().condition(i, receivingPlayer.getDices().getValues())) {
+                    row.append(String.format("%d", receivingPlayer.getPoints().scoreLowerSection(i, receivingPlayer.getDices().getValues())));
                 }
                 else {
                     row.append(String.format("%d", 0));
                 }
 
                                 // sends everything and deletes the cache
-                player.write(row.toString());
+                receivingPlayer.writeMultipleParagraphs(row.toString());
                 row.delete(0, row.length());
             }
         }
+
+        receivingPlayer.writeMultipleParagraphs(" ");
     }
 
                                 // get-/set- methods

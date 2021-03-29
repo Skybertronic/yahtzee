@@ -53,37 +53,23 @@ class Player {
         return bufferedReader.readLine();
     }
 
+    public void writeMultipleParagraphs(String message) {
+
+        printWriter.println("!startPrint");
+        this.send();
+        printWriter.println(message);
+        this.send();
+        printWriter.println("!endPrint");
+        this.send();
+    }
+
                                     // sends stuff
-
     public void write(String message) {
-        System.out.println("TestSend "+ message); // DEBUG
 
-        switch (message) {
-            case "!startGame":
-            case "!isHost":
-            case "!isPlayer":
-            case "!startTurn":
-            case "!endTurn":
-            case "!changeDices":
-            case "!chooseBracket":
-            case "!chooseID":
-            case "!getInput":
-            case "!wrongInput":
-            case "!isFinished":
-            case "!isNotFinished":
-            case "!endGame":
-                printWriter.println(message);
+        System.out.println("PlayerTestSend "+ message);     // DEBUG
 
-            default: {
-                printWriter.println("!startPrint");
-                send();
-                printWriter.println(message);
-                send();
-                printWriter.println("!endPrint");
-        }
-
-            send();
-        }
+        printWriter.println(message);
+        this.send();
     }
 
     public void send() {

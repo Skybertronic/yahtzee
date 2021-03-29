@@ -26,7 +26,7 @@ public class Game implements Runnable {
     }
 
                                 // randomizes every dice
-    private void randomizeDices(Player player) {
+    private void randomizeDices(Player player) throws ArrayIndexOutOfBoundsException {
 
         for (int i=0; i<player.getDices().getValues().length; i++) {
             player.getDices().randomizeValue(i);
@@ -45,7 +45,7 @@ public class Game implements Runnable {
     }
 
                                 //  administrates the process of changing the dicing
-    private void changeDices(Player player) throws IOException {
+    private void changeDices(Player player) throws IOException, ArrayIndexOutOfBoundsException {
         String message;
         boolean wrongInput;
         ArrayList<Integer> changes = new ArrayList<>();
@@ -58,13 +58,13 @@ public class Game implements Runnable {
                 wrongInput = false;
                 changes.clear();
 
-                player.write(printDices(player));
+                player.writeMultipleParagraphs(printDices(player));
 
-                // manages the input
+                                // manages the input
                 player.write("!changeDices");
                 message = player.getInput();
 
-                // player doesn't want to change any dices
+                                // player doesn't want to change any dices
                 if (message.startsWith(",")) {
                     i=3;
                     break;
@@ -74,18 +74,18 @@ public class Game implements Runnable {
                     for (String value: message.split(",")) {
                         changes.add(Integer.parseInt(value));
                     }
-                } catch (NumberFormatException numberFormatException) {
-                    wrongInput = true;
-
-                    player.write("!wrongInput!");
                 }
+                catch (NumberFormatException | ArrayIndexOutOfBoundsException exception) {
+                    wrongInput = true;
+                    player.write("!wrongInput");
+                }
+
             } while (wrongInput);
 
                                 // extracts the different values
             for (int change: changes) {
                 player.getDices().randomizeValue(change);
             }
-            
         }
 
                                 // sends the finals values to the player
@@ -96,8 +96,10 @@ public class Game implements Runnable {
     private void setPoints(Player player) throws IOException {
         String section;
         int position = 0;
+        boolean wrongInput;
 
         do {
+            wrongInput = false;
                                 // manages the choosing of the upper or lower bracket
             player.write("!chooseBracket");
 
@@ -106,13 +108,17 @@ public class Game implements Runnable {
             if (section.toLowerCase().startsWith("u") || section.toLowerCase().startsWith("l")) {
 
                                 // manages the choosing of the field
-                CHART.sendPoints(player, section);
+                try {
+                    CHART.sendPoints(player, section);
+                    player.write("!chooseID");
+                    position = Integer.parseInt(player.getInput())-1;
 
-                player.write("!chooseID");
-
-                position = Integer.parseInt(player.getInput())-1;
+                } catch (NumberFormatException numberFormatException) {
+                    wrongInput = true;
+                    player.write("!wrongInput");
+                }
             }
-        } while (!player.getPoints().setScore(section, position , player.getDices().getValues()));
+        } while (wrongInput || !player.getPoints().setScore(section, position , player.getDices().getValues()));
     }
 
                                 // manages if every player has completed their sheet

@@ -32,14 +32,15 @@ public class Client {
                                 // handles receiving a message
     public String read() throws IOException {
         String message = bufferedReader.readLine();
-
+        //System.out.println("DEBUG: " + message);
         return message;
     }
 
                                 // handles sending a message
     public void write(String message) throws IOException {
         PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-
+        message = message.replace(" ", "");
+        System.out.println(message);
         printWriter.println(message);
         printWriter.flush();
     }
@@ -104,7 +105,6 @@ public class Client {
              this.write(scanner.next());
 
                                 // login message
-
              switch (read()) {
                  case "!registered" -> System.out.println("New Account created!");
                  case "!loginSuccessful" -> System.out.println("Login successful!");
@@ -137,7 +137,6 @@ public class Client {
     public void hostAssignGameType() throws IOException {
 
         do {
-
             System.out.printf("%n%s", "Linear or parallel?: ");
             write(scanner.next());
         } while (read().equals("!wrongInput"));
@@ -164,10 +163,10 @@ public class Client {
                     case "!changeDices" -> System.out.printf("%n%s", "Which dices do you want to change?: ");
                     case "!chooseBracket" -> System.out.printf("%n%s", "Upper or lower bracket?: ");
                     case "!chooseID" -> System.out.printf("%n%s", "ID: ");
-                    case "!isFinished" -> System.out.printf("%n%s", "The game is finished!");
+                    case "!isFinished" -> System.out.printf("%n%s%n", "The game is finished!");
                     case "!isNotFinished" -> System.out.printf("%n%s", "The game isn't finished yet!");
                     case "!getInput" -> write(scanner.next());
-                    case "!wrongInput" -> System.out.printf("%n%s", "Wrong input!");
+                    case "!wrongInput" -> System.out.printf("%n%s%n", "Wrong input!");
                     case "!endGame" -> System.out.printf("%n%s", "Do you want to end the game?: ");
                     case "!startPrint" -> {
                         receive = read();
@@ -196,9 +195,8 @@ public class Client {
                 client.hostFillsLobby();
                 client.hostAssignGameType();
             }
-            else {
-                client.waitingForHost();
-            }
+
+            client.waitingForHost();
 
             client.inGame();
 

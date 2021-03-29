@@ -7,7 +7,7 @@ public class Dices {
     }
 
                                 // randomizes a dice
-    public void randomizeValue(int i) {
+    public void randomizeValue(int i) throws ArrayIndexOutOfBoundsException {
         values[i] = (int) (Math.random()*6+1);
     }
 
