@@ -114,7 +114,7 @@ public class Game implements Runnable {
 
                                 // manages the choosing of the field
                 try {
-                    CHART.sendPoints(player, section);
+                    CHART.sendPoints(player, section, DICES);
                     player.write("!chooseID");
                     position = Integer.parseInt(player.getInput())-1;
 

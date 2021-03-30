@@ -86,7 +86,7 @@ public class Chart {
     }
 
                                 // sends the point-sheet
-    public void sendPoints(Player receivingPlayer, String section) {
+    public void sendPoints(Player receivingPlayer, String section, Dices dices) {
         String[] description = {"ID", "DESIGNATION", "NOT PLAYED", "POINTS"};
         StringBuilder row = new StringBuilder();
 
@@ -107,7 +107,7 @@ public class Chart {
                 row.append(String.format("%-3d", (i+1)));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "s", DESIGNATIONS[i]));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPoints().getRegistered()[i]));
-                row.append(String.format("%d", receivingPlayer.getPoints().scoreUpperSection(i, receivingPlayer.getDices().getValues())));
+                row.append(String.format("%d", receivingPlayer.getPoints().scoreUpperSection(i, dices.getValues())));
 
                                 // sends line and deletes the cache
                 receivingPlayer.writeMultipleParagraphs(row.toString());
@@ -124,8 +124,8 @@ public class Chart {
                 row.append(String.format("%-3d", (i+1)));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "s", DESIGNATIONS[i+9]));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPoints().getRegistered()[i+9]));
-                if (receivingPlayer.getPoints().condition(i, receivingPlayer.getDices().getValues())) {
-                    row.append(String.format("%d", receivingPlayer.getPoints().scoreLowerSection(i, receivingPlayer.getDices().getValues())));
+                if (receivingPlayer.getPoints().condition(i, dices.getValues())) {
+                    row.append(String.format("%d", receivingPlayer.getPoints().scoreLowerSection(i, dices.getValues())));
                 }
                 else {
                     row.append(String.format("%d", 0));
