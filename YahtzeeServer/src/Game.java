@@ -8,6 +8,7 @@ public class Game implements Runnable {
     private final java.net.ServerSocket SERVERSOCKET;
     private final Chart CHART;
     private final Player[] PLAYER;
+    private final Dices DICES;
 
     public Game(java.net.ServerSocket serverSocket, Chart chart, Player[] players) {
         this.running = true;
@@ -15,6 +16,7 @@ public class Game implements Runnable {
         this.SERVERSOCKET = serverSocket;
         this.CHART = chart;
         this.PLAYER = players;
+        this.DICES = new Dices();
     }
 
                                 // sends the chart to every player
@@ -26,18 +28,18 @@ public class Game implements Runnable {
     }
 
                                 // randomizes every dice
-    private void randomizeDices(Player player) throws ArrayIndexOutOfBoundsException {
+    private void randomizeDices() throws ArrayIndexOutOfBoundsException {
 
-        for (int i=0; i<player.getDices().getValues().length; i++) {
-            player.getDices().randomizeValue(i);
+        for (int i=0; i<DICES.getValues().length; i++) {
+            DICES.randomizeValue(i);
         }
     }
 
                                 // returns the value of a dice
-    private String printDices(Player player) {
+    private String printDices() {
         ArrayList<Integer> diceValues = new ArrayList<>();
 
-        for (int value: player.getDices().getValues()) {
+        for (int value: DICES.getValues()) {
             diceValues.add(value);
         }
 
@@ -46,63 +48,66 @@ public class Game implements Runnable {
 
                                 //  administrates the process of changing the dicing
     private void changeDices(Player player) throws IOException, ArrayIndexOutOfBoundsException {
-        String message;
-        boolean wrongInput;
-        ArrayList<Integer> changes = new ArrayList<>();
+        randomizeDices();
 
-        randomizeDices(player);
-
+        Integer[] changes;
         for (int i=0; i<3; i++) {
-                                // sends the value of the dices to the active player
-            do {
-                wrongInput = false;
-                changes.clear();
 
-                player.writeMultipleParagraphs(printDices(player));
+            changes = inputChangeDices(player);
+            if (changes == null) break;
 
-                                // manages the input
-                player.write("!changeDices");
-                message = player.getInput();
-
-                                // player doesn't want to change any dices
-                if (message.startsWith(",")) {
-                    i=3;
-                    break;
-                }
-
-                try {
-                    for (String value: message.split(",")) {
-                        changes.add(Integer.parseInt(value));
-                    }
-                }
-                catch (NumberFormatException | ArrayIndexOutOfBoundsException exception) {
-                    wrongInput = true;
-                    player.write("!wrongInput");
-                }
-
-            } while (wrongInput);
-
-                                // extracts the different values
             for (int change: changes) {
-                player.getDices().randomizeValue(change);
+                DICES.randomizeValue(change);
             }
         }
 
                                 // sends the finals values to the player
-        player.write(printDices(player));
+        player.write(printDices());
+    }
+
+    private Integer[] inputChangeDices(Player player) throws IOException {
+        ArrayList<Integer> changes = new ArrayList<>();
+        boolean wrongInput;
+        String input;
+
+        do {
+            wrongInput = false;
+
+            player.writeMultipleParagraphs(printDices());
+
+                                // manages the input
+            player.write("!changeDices");
+            input = player.getInput();
+
+                                // player doesn't want to change any dices
+            if (input.startsWith(",")) return null;
+
+                                // checks, if the input is valid
+            try {
+                for (String value: input.split(",")) {
+                    changes.add(Integer.parseInt(value));
+                }
+            }
+            catch (NumberFormatException | ArrayIndexOutOfBoundsException exception) {
+                wrongInput = true;
+                changes.clear();
+                player.write("!wrongInput");
+            }
+        } while (wrongInput);
+
+        return changes.toArray(new Integer[0]);
     }
 
                                 // manages the chart input
     private void setPoints(Player player) throws IOException {
         String section;
-        int position = 0;
         boolean wrongInput;
+        int position = 0;
 
         do {
             wrongInput = false;
                                 // manages the choosing of the upper or lower bracket
             player.write("!chooseBracket");
-
             section = player.getInput();
 
             if (section.toLowerCase().startsWith("u") || section.toLowerCase().startsWith("l")) {
@@ -118,7 +123,7 @@ public class Game implements Runnable {
                     player.write("!wrongInput");
                 }
             }
-        } while (wrongInput || !player.getPoints().setScore(section, position , player.getDices().getValues()));
+        } while (wrongInput || !player.getPoints().setScore(section, position , DICES.getValues()));
     }
 
                                 // manages if every player has completed their sheet

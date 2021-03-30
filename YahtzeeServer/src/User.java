@@ -33,7 +33,6 @@ public class User {
 class Player {
     private final User USER;
     private final Points points;
-    private final Dices dices;
 
     private final java.net.Socket socket;
     private final BufferedReader bufferedReader;
@@ -43,7 +42,6 @@ class Player {
         this.USER = user;
         this.socket = socket;
         this.points = new Points();
-        this.dices = new Dices();
 
         this.bufferedReader = bufferedReader;
         this.printWriter = printWriter;
@@ -109,10 +107,6 @@ class Player {
 
     public Points getPoints() {
         return points;
-    }
-
-    public Dices getDices() {
-        return dices;
     }
 
     public Socket getSocket() {

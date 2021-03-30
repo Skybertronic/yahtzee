@@ -140,7 +140,6 @@ public class Client {
             System.out.printf("%n%s", "Linear or parallel?: ");
             write(scanner.next());
         } while (read().equals("!wrongInput"));
-
     }
 
                                 // loops until the host assigned a game type
