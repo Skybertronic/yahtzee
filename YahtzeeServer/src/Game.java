@@ -1,13 +1,12 @@
 import java.io.IOException;
 import java.util.ArrayList;
 
-                                // administrates everything happening in game
 public class Game implements Runnable {
     private boolean running;
 
     private final java.net.ServerSocket SERVERSOCKET;
     private final Chart CHART;
-    private final Player[] PLAYER;
+    private final Player[] PLAYERS;
     private final Dices DICES;
 
     public Game(java.net.ServerSocket serverSocket, Chart chart, Player[] players) {
@@ -15,14 +14,14 @@ public class Game implements Runnable {
 
         this.SERVERSOCKET = serverSocket;
         this.CHART = chart;
-        this.PLAYER = players;
+        this.PLAYERS = players;
         this.DICES = new Dices();
     }
 
                                 // sends the chart to every player
     private void sendChartToEveryone() throws IOException {
 
-        for (Player player: PLAYER) {
+        for (Player player: PLAYERS) {
             CHART.sendChart(player);
         }
     }
@@ -77,7 +76,7 @@ public class Game implements Runnable {
 
                                 // manages the input
             player.write("!changeDices");
-            input = player.getInput();
+            input = player.read();
 
                                 // player doesn't want to change any dices
             if (input.startsWith(",")) return null;
@@ -108,7 +107,7 @@ public class Game implements Runnable {
             wrongInput = false;
                                 // manages the choosing of the upper or lower bracket
             player.write("!chooseBracket");
-            section = player.getInput();
+            section = player.read();
 
             if (section.toLowerCase().startsWith("u") || section.toLowerCase().startsWith("l")) {
 
@@ -116,81 +115,79 @@ public class Game implements Runnable {
                 try {
                     CHART.sendPoints(player, section, DICES);
                     player.write("!chooseID");
-                    position = Integer.parseInt(player.getInput())-1;
+                    position = Integer.parseInt(player.read())-1;
 
                 } catch (NumberFormatException numberFormatException) {
                     wrongInput = true;
                     player.write("!wrongInput");
                 }
             }
-        } while (wrongInput || !player.getPoints().setScore(section, position , DICES.getValues()));
+        } while (wrongInput || !player.getPOINTS().setScore(section, position , DICES.getValues()));
     }
-
                                 // manages if every player has completed their sheet
-    private boolean endGame() {
+    private boolean isFinished(Player[] players) {
 
-        for (Player player: PLAYER) {
-            for (boolean registered : player.getPoints().getRegistered()) {
+        for (Player player: players) {
+            for (boolean registered : player.getPOINTS().getRegistered()) {
                 if (!registered) {
-                    return true;
+                    return false;
                 }
             }
         }
 
-        return false;
+        return true;
     }
 
-                                // returns the status of the game
-    public String printStatusResult() {
+    private boolean finishGame() throws IOException {
 
-        for (Player player: CHART.getPlayers()) {
-            for (boolean registered : player.getPoints().getRegistered()) {
-                if (!registered) {
-                    return "!isNotFinished";
-                }
-            }
-        }
-
-        return "!isFinished";
+        PLAYERS[0].write("!printFinalResults");
+        return !PLAYERS[0].read().equalsIgnoreCase("yes");
     }
 
     @Override
     public void run() {
 
-        try {
-            while (endGame()) {
-                for (Player player: PLAYER) {
+            while (!isFinished(PLAYERS)) {
+                for (Player player: PLAYERS) {
                     player.startTurn();
-                    sendChartToEveryone();
-                    changeDices(player);
-                    setPoints(player);
+
+                    try {
+                        sendChartToEveryone();
+                    } catch (IOException ignored) {}
+
+                    try {
+                        changeDices(player);
+                        setPoints(player);
+                    } catch (IOException ioException) {
+                        if (!player.hasLeftGame()) {
+                            System.out.printf("%n%s%n", player.getUSER().getName() + " has left"); // DEBUG
+                            player.setLeftGame(true);   // DELETE
+                        }
+                    }
+
                     player.endTurn();
                 }
             }
+            try {
 
-                                // Nach Spielende
-            PLAYER[0].write("!waitingForResults");
+                // Only relevant for parallel
+                while (!isFinished(CHART.getPlayers()) && finishGame()) {
+                    finishGame();
+                    sendChartToEveryone();
+                }
 
-            String status;
-            do {
-                PLAYER[0].write(printStatusResult());
-                PLAYER[0].write("!endGame");
-
-                status = PLAYER[0].getInput();
-            } while (!status.equals("yes"));
-
-            sendChartToEveryone();
-
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+                // Final chart
+                sendChartToEveryone();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
 
         running = false;
     }
 
                                 // get-/set- methods
-    public Player[] getPLAYER() {
-        return PLAYER;
+    public Player[] getPLAYERS() {
+        return PLAYERS;
     }
 
     public boolean isRunning() {

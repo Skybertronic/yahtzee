@@ -17,9 +17,8 @@ public class Setup {
     private static int latestLocalPort = 1000;
 
     public Setup() {
-        new Database();
 
-        System.out.println("Server v2.1.4 by Skybertronic");
+        System.out.println("Server v2.2.0 by Skybertronic");
 
         USERS = new ArrayList<>();
 
@@ -27,22 +26,23 @@ public class Setup {
         Thread thread = new Thread(ADMINISTRATION);
         thread.start();
 
-        System.out.print("Do you want to print your IP-address?: ");
+        try {
+            printIPAddress();
+        } catch (UnknownHostException unknownHostException) {
+            unknownHostException.printStackTrace();
+        }
+    }
 
                                 // prints ip-address to ease the connection
-        if (new Scanner(System.in).next().equalsIgnoreCase("yes")) {
-            try {
-                System.out.println("IP-address: " + InetAddress.getLocalHost().getHostAddress());
-            } catch (UnknownHostException unknownHostException) {
-                unknownHostException.printStackTrace();
-            }
-        }
+    private void printIPAddress() throws UnknownHostException {
 
+        System.out.printf("%n%s", "Do you want to print your IP-address?: ");
+
+        if (new Scanner(System.in).next().toLowerCase().contains("yes")) System.out.println("IP-address: " + InetAddress.getLocalHost().getHostAddress());
     }
 
     public void write(PrintWriter printWriter, String message) {
 
-        System.out.println("SystemTestSend " + message);
         printWriter.println(message);
         printWriter.flush();
 
@@ -53,16 +53,25 @@ public class Setup {
         }
     }
 
-    public String read(BufferedReader bufferedReader) throws IOException {
+    public String read(PrintWriter printWriter, BufferedReader bufferedReader) throws IOException {
+
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+
+        printWriter.println("!getInput");
+        printWriter.flush();
+
         String message = bufferedReader.readLine();
-        System.out.println(message);
         return message;
     }
 
                                 // creates the server socket for the different games
     private void createNewSocket() throws IOException {
         latestServerSocket = new java.net.ServerSocket(++latestLocalPort);
-        System.out.println("Lobby " + latestLocalPort + " is open to join!");
+        System.out.printf("%n%s", "Lobby " + latestLocalPort + " is open to join!");
     }
 
                                 // basically the lobby
@@ -82,23 +91,31 @@ public class Setup {
             } while (player == null);
 
                                 //  client becomes the host or stays a player | relevant for the client
-            write(player.getPrintWriter(), setRoleClient(isHost));
+            player.write(setRoleClient(isHost));
             isHost = false;
 
                                 // adds player to the lobby
             players.add(player);
 
-                                // host decides how many people are able to join the lobby
-            write(players.get(0).getPrintWriter(), player.getUSER().getName());
-        } while (players.get(0).read().equalsIgnoreCase("yes"));
+        } while (addAgain(players.get(0), player));
 
-        System.out.println("Lobby " + latestLocalPort + " is closed!");
+        System.out.printf("%n%s", "Lobby " + latestLocalPort + " is closed!");
 
         return players.toArray(Player[]::new);
     }
 
+
+                                // host decides if additional clients are able to join the lobby
+    private boolean addAgain(Player host, Player player) throws IOException {
+
+        host.write("!addAgain");
+        host.write(player.getUSER().getName());
+
+        return new BufferedReader(new InputStreamReader(host.getSocket().getInputStream())).readLine().equals("!yes");
+    }
+
                                 // client gets linked to a player
-    private Player loginPlayer(Socket loginSocket) throws IOException {
+    public Player loginPlayer(Socket loginSocket) throws IOException {
         final int MAX_PLAYER_NAME_LENGTH = 12;
         String name, password;
 
@@ -115,18 +132,18 @@ public class Setup {
         do {
             wrongInput = false;
 
-            name = read(bufferedReader);
+            write(printWriter, "!name");
+            name = read(printWriter, bufferedReader);
 
             if (name.length()>MAX_PLAYER_NAME_LENGTH) {
+                write(printWriter, "!wrongInput");
                 wrongInput = true;
-
-                write(printWriter, "" + MAX_PLAYER_NAME_LENGTH);
             }
         } while (wrongInput);
-        write(printWriter, "!acceptedInput");
 
                                 // input password
-        password = read(bufferedReader);
+        write(printWriter,"!password");
+        password = read(printWriter, bufferedReader);
 
                                 // compares name and password with every existing user
         for (User user: USERS) {
@@ -175,20 +192,20 @@ public class Setup {
         boolean wrongInput;
         Thread gameThread;
         Chart chart = new Chart(players);
-        ArrayList<Game> lobbies = new ArrayList<>();
+        ArrayList<Game> games = new ArrayList<>();
 
                                 // host chooses game-type
         do {
             wrongInput = false;
 
+            players[0].write("!assignType");
             switch (players[0].read()) {
-
-                case "linear" -> lobbies.add(new Game(latestServerSocket, chart, players));
+                case "linear" -> games.add(new Game(latestServerSocket, chart, players));
 
                                 // players play there games separately and the chart gets synchronized
                 case "parallel" -> {
                     for (Player player : players) {
-                        lobbies.add(new Game(latestServerSocket, chart, new Player[]{player}));
+                        games.add(new Game(latestServerSocket, chart, new Player[]{player}));
                     }
                 }
 
@@ -199,22 +216,21 @@ public class Setup {
             }
         } while (wrongInput);
 
-        players[0].write("!acceptedInput");
-
                                 // sends the command to start the game to every player part of the lobby
         for (Player player: players) {
             player.write("!startGame");
         }
 
-        for (Game lobby: lobbies) {
-            ADMINISTRATION.getGAMES().add(lobby);
+                                // adds the game(s) to administration
+        for (Game game: games) {
+            ADMINISTRATION.getGAMES().add(game);
 
-            gameThread = new Thread(lobby);
+            gameThread = new Thread(game);
             gameThread.start();
             ADMINISTRATION.getTHREADS().add(gameThread);
         }
 
-        System.out.println("Game " + latestLocalPort + " starts!");
+        System.out.printf("%n%s%n", "Game " + latestLocalPort + " starts!");
     }
 
     public static void main(String[] args) {

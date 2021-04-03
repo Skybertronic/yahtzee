@@ -43,8 +43,8 @@ public class Chart {
 
                                 // caches points
         for (Player player: players) {
-            playersPoints.add(player.getPoints().getUpdatedScore());
-            playersRegistered.add(player.getPoints().getRegistered());
+            playersPoints.add(player.getPOINTS().getUpdatedScore());
+            playersRegistered.add(player.getPOINTS().getRegistered());
         }
 
                                 // appends all the names to the to be send row
@@ -106,8 +106,8 @@ public class Chart {
 
                 row.append(String.format("%-3d", (i+1)));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "s", DESIGNATIONS[i]));
-                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPoints().getRegistered()[i]));
-                row.append(String.format("%d", receivingPlayer.getPoints().scoreUpperSection(i, dices.getValues())));
+                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPOINTS().getRegistered()[i]));
+                row.append(String.format("%d", receivingPlayer.getPOINTS().scoreUpperSection(i, dices.getValues())));
 
                                 // sends line and deletes the cache
                 receivingPlayer.writeMultipleParagraphs(row.toString());
@@ -123,9 +123,9 @@ public class Chart {
                                 // one formatted row
                 row.append(String.format("%-3d", (i+1)));
                 row.append(String.format("%-" + LONGESTDESIGNATION + "s", DESIGNATIONS[i+9]));
-                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPoints().getRegistered()[i+9]));
-                if (receivingPlayer.getPoints().condition(i, dices.getValues())) {
-                    row.append(String.format("%d", receivingPlayer.getPoints().scoreLowerSection(i, dices.getValues())));
+                row.append(String.format("%-" + LONGESTDESIGNATION + "B", !receivingPlayer.getPOINTS().getRegistered()[i+9]));
+                if (receivingPlayer.getPOINTS().condition(i, dices.getValues())) {
+                    row.append(String.format("%d", receivingPlayer.getPOINTS().scoreLowerSection(i, dices.getValues())));
                 }
                 else {
                     row.append(String.format("%d", 0));

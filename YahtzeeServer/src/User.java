@@ -32,41 +32,39 @@ public class User {
                                 // saves all the data needed to play a game and handles the connection
 class Player {
     private final User USER;
-    private final Points points;
+    private final Points POINTS;
 
-    private final java.net.Socket socket;
-    private final BufferedReader bufferedReader;
-    private final PrintWriter printWriter;
+    private final BufferedReader BUFFEREDREADER;
+    private final PrintWriter PRINTWRITER;
 
-    public Player(User user, java.net.Socket socket, BufferedReader bufferedReader, PrintWriter printWriter) {
+    private java.net.Socket socket;
+    private boolean leftGame;
+
+    public Player(User user, java.net.Socket socket, BufferedReader BUFFEREDREADER, PrintWriter PRINTWRITER) {
         this.USER = user;
+        this.POINTS = new Points();
+
+        this.BUFFEREDREADER = BUFFEREDREADER;
+        this.PRINTWRITER = PRINTWRITER;
+
         this.socket = socket;
-        this.points = new Points();
-
-        this.bufferedReader = bufferedReader;
-        this.printWriter = printWriter;
-    }
-
-    public String read() throws IOException {
-        return bufferedReader.readLine();
+        this.leftGame = false;
     }
 
     public void writeMultipleParagraphs(String message) {
 
-        printWriter.println("!startPrint");
+        PRINTWRITER.println("!startPrint");
         this.send();
-        printWriter.println(message);
+        PRINTWRITER.println(message);
         this.send();
-        printWriter.println("!endPrint");
+        PRINTWRITER.println("!endPrint");
         this.send();
     }
 
                                     // sends stuff
     public void write(String message) {
 
-        System.out.println("PlayerTestSend "+ message);     // DEBUG
-
-        printWriter.println(message);
+        PRINTWRITER.println(message);
         this.send();
     }
 
@@ -77,26 +75,26 @@ class Player {
         } catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();
         }
-        printWriter.flush();
+        PRINTWRITER.flush();
     }
 
-    public String getInput() throws IOException {
+    public String read() throws IOException {
 
-        printWriter.println("!getInput");
+        PRINTWRITER.println("!getInput");
         send();
 
-        return read();
+        return BUFFEREDREADER.readLine();
     }
 
     public void startTurn() {
 
-        printWriter.println("!startTurn");
+        PRINTWRITER.println("!startTurn");
         send();
     }
 
     public void endTurn() {
 
-        printWriter.println("!endTurn");
+        PRINTWRITER.println("!endTurn");
         send();
     }
 
@@ -105,15 +103,19 @@ class Player {
         return USER;
     }
 
-    public Points getPoints() {
-        return points;
+    public Points getPOINTS() {
+        return POINTS;
     }
 
     public Socket getSocket() {
         return socket;
     }
 
-    public PrintWriter getPrintWriter() {
-        return printWriter;
+    public void setSOCKET(Socket socket) {
+        this.socket = socket;
     }
+
+    public boolean hasLeftGame() { return leftGame; }
+
+    public void setLeftGame(boolean leftGame) { this.leftGame = leftGame; }
 }
