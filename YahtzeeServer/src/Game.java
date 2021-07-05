@@ -46,7 +46,7 @@ public class Game implements Runnable {
     }
 
                                 //  administrates the process of changing the dicing
-    private void changeDices(Player player) throws IOException, ArrayIndexOutOfBoundsException {
+    private void changeDices(Player player) throws IOException {
         randomizeDices();
 
         Integer[] changes;
@@ -56,7 +56,11 @@ public class Game implements Runnable {
             if (changes == null) break;
 
             for (int change: changes) {
-                DICES.randomizeValue(change);
+                try {
+                    DICES.randomizeValue(change);
+                } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                    arrayIndexOutOfBoundsException.printStackTrace();
+                }
             }
         }
 
@@ -87,7 +91,7 @@ public class Game implements Runnable {
                     changes.add(Integer.parseInt(value));
                 }
             }
-            catch (NumberFormatException | ArrayIndexOutOfBoundsException exception) {
+            catch (NumberFormatException exception) {
                 wrongInput = true;
                 changes.clear();
                 player.write("!wrongInput");
@@ -128,11 +132,7 @@ public class Game implements Runnable {
     private boolean isFinished(Player[] players) {
 
         for (Player player: players) {
-            for (boolean registered : player.getPOINTS().getRegistered()) {
-                if (!registered) {
-                    return false;
-                }
-            }
+            if(!player.hasFinished()) return false;
         }
 
         return true;
@@ -147,40 +147,40 @@ public class Game implements Runnable {
     @Override
     public void run() {
 
-            while (!isFinished(PLAYERS)) {
-                for (Player player: PLAYERS) {
-                    player.startTurn();
+                                // Main-Game
+        while (!isFinished(PLAYERS)) {
+            for (Player player: PLAYERS) {
+                player.startTurn();
 
-                    try {
-                        sendChartToEveryone();
-                    } catch (IOException ignored) {}
-
-                    try {
-                        changeDices(player);
-                        setPoints(player);
-                    } catch (IOException ioException) {
-                        if (!player.hasLeftGame()) {
-                            System.out.printf("%n%s%n", player.getUSER().getName() + " has left"); // DEBUG
-                            player.setLeftGame(true);   // DELETE
-                        }
-                    }
-
-                    player.endTurn();
-                }
-            }
-            try {
-
-                // Only relevant for parallel
-                while (!isFinished(CHART.getPlayers()) && finishGame()) {
-                    finishGame();
+                try {
                     sendChartToEveryone();
+                } catch (IOException ignored) {}
+
+                try {
+                    changeDices(player);
+                    setPoints(player);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
 
-                // Final chart
-                sendChartToEveryone();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+                player.endTurn();
             }
+        }
+
+        // Post-Game
+        try {
+
+            // Only relevant for parallel
+            while (!isFinished(CHART.getPlayers()) && finishGame()) {
+                finishGame();
+                sendChartToEveryone();
+            }
+
+            // Final chart
+            sendChartToEveryone();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
 
         running = false;
     }

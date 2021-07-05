@@ -1,6 +1,4 @@
 import java.io.*;
-
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -75,7 +73,7 @@ public class Setup {
     }
 
                                 // basically the lobby
-    private Player[] connectToLobby() throws IOException {
+    private Player[] connectToGame() throws IOException {
         Socket loginSocket;
         Player player;
         ArrayList<Player> players = new ArrayList<>();
@@ -91,7 +89,7 @@ public class Setup {
             } while (player == null);
 
                                 //  client becomes the host or stays a player | relevant for the client
-            player.write(setRoleClient(isHost));
+            player.write(getCommandRoleClient(isHost));
             isHost = false;
 
                                 // adds player to the lobby
@@ -104,17 +102,7 @@ public class Setup {
         return players.toArray(Player[]::new);
     }
 
-
-                                // host decides if additional clients are able to join the lobby
-    private boolean addAgain(Player host, Player player) throws IOException {
-
-        host.write("!addAgain");
-        host.write(player.getUSER().getName());
-
-        return new BufferedReader(new InputStreamReader(host.getSocket().getInputStream())).readLine().equals("!yes");
-    }
-
-                                // client gets linked to a player
+    // client gets linked to a player
     public Player loginPlayer(Socket loginSocket) throws IOException {
         final int MAX_PLAYER_NAME_LENGTH = 12;
         String name, password;
@@ -123,11 +111,11 @@ public class Setup {
         BufferedReader bufferedReader;
         PrintWriter printWriter;
 
-                                // temporary connection
+        // temporary connection
         bufferedReader = new BufferedReader(new InputStreamReader(loginSocket.getInputStream()));
         printWriter = new PrintWriter(new OutputStreamWriter(loginSocket.getOutputStream()));
 
-                                // input name
+        // input name
         boolean wrongInput;
         do {
             wrongInput = false;
@@ -141,32 +129,32 @@ public class Setup {
             }
         } while (wrongInput);
 
-                                // input password
+        // input password
         write(printWriter,"!password");
         password = read(printWriter, bufferedReader);
 
-                                // compares name and password with every existing user
+        // compares name and password with every existing user
         for (User user: USERS) {
 
             if (user.getName().equalsIgnoreCase(name)) {
 
                 if (user.getPassword().equals(password) && !user.isInGame()) {
 
-                                // login successful
+                    // login successful
                     write(printWriter, "!loginSuccessful");
                     user.setInGame(true);
 
                     return new Player(user, loginSocket, bufferedReader, printWriter);
                 }
 
-                                // wrong password
+                // wrong password
                 write(printWriter, "!loginFailed");
 
                 return null;
             }
         }
 
-                                // user didn't exist
+        // user didn't exist
         User user = new User(name, password);
         user.setInGame(true);
         USERS.add(user);
@@ -176,8 +164,21 @@ public class Setup {
         return new Player(user, loginSocket, bufferedReader, printWriter);
     }
 
+                                // host decides if additional clients are able to join the lobby
+    private boolean addAgain(Player host, Player player) throws IOException {
+
+        host.write("!addAgain");
+        host.write(player.getUSER().getName());
+
+        host.read().equals("yes");
+
+        return new BufferedReader(new InputStreamReader(host.getSocket().getInputStream())).readLine().equals("!yes");
+    }
+
+
+
                                 // returns the command to assign a role
-    private String setRoleClient(boolean isHost) {
+    private String getCommandRoleClient(boolean isHost) {
 
         if (isHost) {
             return "!isHost";
@@ -190,7 +191,6 @@ public class Setup {
                                 // last settings, before the game starts
     private void createGame(Player[] players) throws IOException {
         boolean wrongInput;
-        Thread gameThread;
         Chart chart = new Chart(players);
         ArrayList<Game> games = new ArrayList<>();
 
@@ -223,11 +223,7 @@ public class Setup {
 
                                 // adds the game(s) to administration
         for (Game game: games) {
-            ADMINISTRATION.getGAMES().add(game);
-
-            gameThread = new Thread(game);
-            gameThread.start();
-            ADMINISTRATION.getTHREADS().add(gameThread);
+            ADMINISTRATION.addGame(game);
         }
 
         System.out.printf("%n%s%n", "Game " + latestLocalPort + " starts!");
@@ -241,7 +237,7 @@ public class Setup {
             while (true) {
 
                 setup.createNewSocket();
-                setup.createGame(setup.connectToLobby());
+                setup.createGame(setup.connectToGame());
             }
         } catch (IOException e) {
 

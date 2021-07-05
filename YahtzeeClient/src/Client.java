@@ -10,7 +10,7 @@ public class Client {
 
     public Client() {
 
-        System.out.println("Client v2.2.0 by Skybertronic");
+        System.out.println("Client v2.1.5 by Skybertronic");
         printRules();
     }
 
@@ -44,19 +44,19 @@ public class Client {
     public boolean connect() {
         int port;
 
-                                // choose ip
-            System.out.printf("%n%s", "IP: ");
-            String ip = scanner.next();
+                            // choose ip
+        System.out.printf("%n%s", "IP: ");
+        String ip = scanner.next();
 
-                                // choose port/lobby
-            try {
-                System.out.print("Lobby: ");
-                port = scanner.nextInt();
+                            // choose port/lobby
+        try {
+            System.out.print("Lobby: ");
+            port = scanner.nextInt();
 
-            } catch (InputMismatchException inputMismatchException) {
-                System.out.printf("%n%n%s%n", "Lobby/Port is always a number!");
-                return false;
-            }
+        } catch (InputMismatchException inputMismatchException) {
+            System.out.printf("%n%n%s%n", "Lobby/Port is always a number!");
+            return false;
+        }
 
                                 // creates connection
         try {
@@ -79,7 +79,6 @@ public class Client {
             switch (receive) {
 
                                 // login commands
-                case "!reconnect" -> System.out.printf("%n%s%n", "Reconnecting!");
                 case "!name" -> System.out.printf("%n%s", "Name: ");
                 case "!password" -> System.out.printf("%s", "Password: ");
                 case "!registered" -> System.out.printf("%n%s", "New Account created!");
@@ -90,12 +89,7 @@ public class Client {
                 case "!isHost" -> System.out.printf("%n%s%n", "You are the host of this game!");
                 case "!addAgain" -> {
                     System.out.printf("%n%s", read() + " joined the game, add again?: ");
-                    if (scanner.next().toLowerCase().contains("yes")) {
-                        write("!yes");
-                    }
-                    else {
-                        write("!no");
-                    }
+                    write(scanner.next().toLowerCase());
                 }
                 case "!assignType" -> System.out.printf("%n%s", "Linear or Parallel?: ");
                 case "!printFinalResults" -> System.out.printf("%n%s%n%s", "The game hasn't finished yet!", "Do you want to end the game?: ");
